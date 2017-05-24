@@ -1,12 +1,17 @@
+const jsdom = require('jsdom')
+const html = `<!DOCTYPE html><body><div id="reactroot"></div></body></html>`;
 
-var jsdom = require('jsdom')
-const { JSDOM } = jsdom;
+let doc;
+let window;
+if ( typeof jsdom.JSDOM != 'undefined') {
+    doc = new jsdom.JSDOM(html);
+    window = doc.window;
+} else {
+    doc = new jsdom.jsdom(html);
+    window = doc.defaultView;
+}
 
-const doc = new JSDOM(`<!DOCTYPE html><body><div id="reactroot"></div></body></html>`);
-
-const window = doc.window;
-const document = window.document;
-global.document = document;
+global.document = window.document;
 global.window = window;
 global.navigator = window.navigator;  
 

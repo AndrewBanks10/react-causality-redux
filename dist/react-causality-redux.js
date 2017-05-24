@@ -103,30 +103,30 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         throw new Error('react-causality-redux: ' + msg);
     };
 
-    if ((typeof _causalityRedux2.default === 'undefined' ? 'undefined' : _typeof(_causalityRedux2.default)) == undefinedString) error('CausalityRedux is undefined');
+    if ((typeof _causalityRedux2.default === 'undefined' ? 'undefined' : _typeof(_causalityRedux2.default)) === undefinedString) error('CausalityRedux is undefined');
 
     var reactreduxConnect = undefined;
-    if ((typeof _reactRedux.connect === 'undefined' ? 'undefined' : _typeof(_reactRedux.connect)) != undefinedString) reactreduxConnect = _reactRedux.connect;
+    if ((typeof _reactRedux.connect === 'undefined' ? 'undefined' : _typeof(_reactRedux.connect)) !== undefinedString) reactreduxConnect = _reactRedux.connect;
 
-    if ((typeof reactreduxConnect === 'undefined' ? 'undefined' : _typeof(reactreduxConnect)) == undefinedString) {
-        if ((typeof ReactRedux === 'undefined' ? 'undefined' : _typeof(ReactRedux)) == undefinedString) error('ReactRedux is undefined');
+    if ((typeof reactreduxConnect === 'undefined' ? 'undefined' : _typeof(reactreduxConnect)) === undefinedString) {
+        if ((typeof ReactRedux === 'undefined' ? 'undefined' : _typeof(ReactRedux)) === undefinedString) error('ReactRedux is undefined');
         reactreduxConnect = ReactRedux.connect;
     }
 
     function handleListeners(arrArg) {
         var hasListerners = false;
         arrArg.forEach(function (p) {
-            hasListerners = hasListerners || _typeof(p.changers) != undefinedString;
+            hasListerners = hasListerners || _typeof(p.changers) !== undefinedString;
         });
         if (!hasListerners) return undefined;
 
         var mapDispatchToProps = function mapDispatchToProps() {
             var obj = {};
             arrArg.forEach(function (p) {
-                if (_typeof(p.changers) != undefinedString) {
-                    if (p.changers.length == 0) {
+                if (_typeof(p.changers) !== undefinedString) {
+                    if (p.changers.length === 0) {
                         var sEntry = _causalityRedux2.default.partitionDefinitions.find(function (entry) {
-                            return p.partitionName == entry.partitionName;
+                            return p.partitionName === entry.partitionName;
                         });
                         if (!sEntry) error(p.partitionName + ' not found.');
                         for (var o in sEntry.changers) {
@@ -134,7 +134,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
                         }
                     } else {
                         p.changers.forEach(function (o) {
-                            if (typeof _causalityRedux2.default.store[p.partitionName][o] != 'function') throw 'The entry ' + o + ' is not a function.';
+                            if (typeof _causalityRedux2.default.store[p.partitionName][o] !== 'function') throw 'The entry ' + o + ' is not a function.';
                             obj[o] = _causalityRedux2.default.store[p.partitionName][o];
                         });
                     }
@@ -149,17 +149,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     function handleStateConnections(arrArg) {
         var hasState = false;
         arrArg.forEach(function (p) {
-            hasState = hasState || _typeof(p.stateEntries) != undefinedString;
+            hasState = hasState || _typeof(p.stateEntries) !== undefinedString;
 
             var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
-                return p.partitionName == e.partitionName;
+                return p.partitionName === e.partitionName;
             });
             if (!partition) throw p.partitionName + ' is not a valid state entry.';
 
-            if ((typeof stateEntries === 'undefined' ? 'undefined' : _typeof(stateEntries)) != undefinedString) {
-                if (!Array.isArray(stateEntries)) throw 'The stateEntries parameter is not an array for ' + p.partitionName + '.';
-                stateEntries.forEach(function (se) {
-                    if (_typeof(partition.defaultState[se]) == undefinedString) throw se + ' is not a valid key in the state partition ' + p.partitionName + '.';
+            if (_typeof(p.stateEntries) !== undefinedString) {
+                if (!Array.isArray(p.stateEntries)) throw 'The stateEntries parameter is not an array for ' + p.partitionName + '.';
+                p.stateEntries.forEach(function (se) {
+                    if (_typeof(partition.defaultState[se]) === undefinedString) throw se + ' is not a valid key in the state partition ' + p.partitionName + '.';
                 });
             }
         });
@@ -169,15 +169,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         var mapStateToProps = function mapStateToProps(state) {
             var obj = {};
             arrArg.forEach(function (p) {
-                if (_typeof(p.stateEntries) != undefinedString) {
-                    if (p.stateEntries.length == 0) {
+                if (_typeof(p.stateEntries) !== undefinedString) {
+                    if (p.stateEntries.length === 0) {
                         var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
-                            return p.partitionName == e.partitionName;
+                            return p.partitionName === e.partitionName;
                         });
                         for (var o in partition.defaultState) {
                             obj[o] = state[p.partitionName][o];
                         }
-                    };
+                    }
 
                     p.stateEntries.forEach(function (entry) {
                         obj[entry] = state[p.partitionName][entry];
@@ -194,16 +194,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         var simpleReduxComponent = reactreduxConnect(mapStateToProps, mapDispatchToProps, mergeProps, options)(reactComponent);
 
         simpleReduxComponent.prototype.priorRender = simpleReduxComponent.prototype.render;
-        simpleReduxComponent.prototype.componentName = reactComponentName == undefinedString ? "React Component" : reactComponentName;
+        simpleReduxComponent.prototype.componentName = reactComponentName === undefinedString ? 'React Component' : reactComponentName;
         simpleReduxComponent.prototype.combinedPartitionName = combinedPartitionName;
         simpleReduxComponent.prototype.render = function () {
             var priorState = this.stateProps;
             var returnComponent = this.priorRender();
-            try {
-                if (typeof _causalityRedux2.default.onListener == 'function') {
-                    if (priorState && !_causalityRedux2.default.shallowEqual(priorState, this.stateProps)) _causalityRedux2.default.onListener({ nextState: this.stateProps, listenerName: this.componentName, partitionName: this.combinedPartitionName });
-                }
-            } catch (msg) {}
+            if (typeof _causalityRedux2.default.onListener === 'function') {
+                if (priorState && !_causalityRedux2.default.shallowEqual(priorState, this.stateProps)) _causalityRedux2.default.onListener({ nextState: this.stateProps, listenerName: this.componentName, partitionName: this.combinedPartitionName });
+            }
             return returnComponent;
         };
 
@@ -213,9 +211,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     function connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options) {
         if (!_causalityRedux2.default.store) throw 'CausalityRedux.createStore must be called before connecting to react components.';
 
-        var combinedPartitionName = "";
+        var combinedPartitionName = '';
         arrArg.forEach(function (p) {
-            if (combinedPartitionName != "") combinedPartitionName += ', ';
+            if (combinedPartitionName !== '') combinedPartitionName += ', ';
             combinedPartitionName += p.partitionName;
         });
 
@@ -227,52 +225,52 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
     _causalityRedux2.default.connectChangersAndStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6, arg7) {
         var arrArg = arg2;
+        var mergeProps = arg6;
+        var options = arg7;
+        var reactComponentName = arg5;
         if (!Array.isArray(arg2)) {
             arrArg = [];
-            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
-            if ((typeof arg4 === 'undefined' ? 'undefined' : _typeof(arg4)) == undefinedString) arg4 = [];
+            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
+            if ((typeof arg4 === 'undefined' ? 'undefined' : _typeof(arg4)) === undefinedString) arg4 = [];
             arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: arg4 });
-            var mergeProps = arg6;
-            var options = arg7;
-            var reactComponentName = arg5;
         } else {
-            var mergeProps = arg4;
-            var options = arg5;
-            var reactComponentName = arg3;
+            mergeProps = arg4;
+            options = arg5;
+            reactComponentName = arg3;
         }
         return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
     };
 
     _causalityRedux2.default.connectStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
         var arrArg = arg2;
+        var mergeProps = arg5;
+        var options = arg6;
+        var reactComponentName = arg4;
         if (!Array.isArray(arg2)) {
             arrArg = [];
-            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
+            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
             arrArg.push({ partitionName: arg2, changers: undefined, stateEntries: arg3 });
-            var mergeProps = arg5;
-            var options = arg6;
-            var reactComponentName = arg4;
         } else {
-            var mergeProps = arg4;
-            var options = arg5;
-            var reactComponentName = arg3;
+            mergeProps = arg4;
+            options = arg5;
+            reactComponentName = arg3;
         }
         return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
     };
 
     _causalityRedux2.default.connectChangersToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
         var arrArg = arg2;
+        var mergeProps = arg5;
+        var options = arg6;
+        var reactComponentName = arg4;
         if (!Array.isArray(arg2)) {
             arrArg = [];
-            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
+            if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
             arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: undefined });
-            var mergeProps = arg5;
-            var options = arg6;
-            var reactComponentName = arg4;
         } else {
-            var mergeProps = arg4;
-            var options = arg5;
-            var reactComponentName = arg3;
+            mergeProps = arg4;
+            options = arg5;
+            reactComponentName = arg3;
         }
         return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
     };

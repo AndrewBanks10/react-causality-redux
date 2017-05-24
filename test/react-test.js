@@ -1,11 +1,11 @@
 import assert from 'assert';
-import React from 'react'
-import ReactDOM from 'react-dom'
-import {createStore} from 'redux'
-import CausalityRedux from 'causality-redux'
-import {Provider} from 'react-redux'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {createStore} from 'redux';
+import CausalityRedux from 'causality-redux';
+import {Provider} from 'react-redux';
 
-import '../lib/react-causality-redux.js'
+import '../lib/react-causality-redux.js';
 
 const COUNTER_STATE = "Counter";
 const reduxCounter = {
@@ -14,9 +14,9 @@ const reduxCounter = {
     changerDefinitions: {
         'onIncrement':  { operation: CausalityRedux.operations.STATE_INCREMENT, impliedArguments: ['counter'] },
         'onDecrement':  { operation: CausalityRedux.operations.STATE_DECREMENT, impliedArguments: ['counter'] },
-        'onIncrement3':  { operation: CausalityRedux.operations.STATE_INCREMENT, impliedArguments: ['counter3'] },
+        'onIncrement3': { operation: CausalityRedux.operations.STATE_INCREMENT, impliedArguments: ['counter3'] }
     }
-}
+};
 
 const FIELD_STATE = 'FIELD_STATE';
 const reduxField = {
@@ -24,20 +24,19 @@ const reduxField = {
     defaultState: {fieldValue: ""},
     changerDefinitions: {
         'onChangeField': { operation: CausalityRedux.operations.STATE_FUNCTION_CALL},
-        'setField': { arguments: ['fieldValue'] },
+        'setField': { arguments: ['fieldValue'] }
     }
-}
+};
 
-let onChangeFieldFunctionCalled = false ;
+let onChangeFieldFunctionCalled = false;
 function init() {
     var fieldState = CausalityRedux.store[FIELD_STATE];
     function onChangeField(arg) {
-        onChangeFieldFunctionCalled = true ;
+        onChangeFieldFunctionCalled = true;
         var x = /^[a-zA-Z\s]*/.exec(arg);
-        if ( x == null )
-            var fieldValue = "";
-        else
-            var fieldValue = x[0];
+        let fieldValue = "";
+        if ( x !== null )
+            fieldValue = x[0];
         fieldState.setField(fieldValue);
     }
     fieldState.subscribe(onChangeField, ['onChangeField'], 'onChangeField');
@@ -51,18 +50,18 @@ const counterStore = store[COUNTER_STATE];
 
 describe('CausalityRedux createStore', function(){
   it('CausalityRedux.store should exist', function(){
-    assert(typeof store != 'undefined' );
+    assert(typeof store !== 'undefined' );
   });
   it('CausalityRedux.connectChangersAndStateToProps should be a function.', function(){
-    assert(typeof CausalityRedux.connectChangersAndStateToProps  == 'function' );
+    assert(typeof CausalityRedux.connectChangersAndStateToProps  === 'function' );
   });
   it('CausalityRedux.connectChangersToProps should be a function.', function(){
-    assert(typeof CausalityRedux.connectChangersToProps  == 'function' );
+    assert(typeof CausalityRedux.connectChangersToProps  === 'function' );
   });
   it('CausalityRedux.connectStateToProps should be a function.', function(){
-    assert(typeof CausalityRedux.connectStateToProps  == 'function' );
+    assert(typeof CausalityRedux.connectStateToProps  === 'function' );
   });
-})
+});
 
 let incButton = null;
 let decButton = null;
@@ -70,73 +69,73 @@ let incButton3 = null;
 let incButton2 = null;
 let counterDisplay = null;
 let renderCallback = null;
-let update = false ;
-let update2 = false ;
+let update = false;
+let update2 = false;
 let inputField = null;
 let counterDisplay2 = null;
 
 class CounterForm extends React.Component {
-    componentDidUpdate() {
-        update = true ;
-    }
+  componentDidUpdate() {
+    update = true;
+  }
 	render() {
-        let {onIncrement, onDecrement, onIncrement3, counter} = this.props;
+    const {onIncrement, onDecrement, onIncrement3, counter} = this.props;
 		return( 
-            <div className='counter-form-button-container'>
-                <div  ref={ e => { counterDisplay = e; }} >{counter}</div>
-                <button ref={ e => { incButton = e }} onClick={ (e) => onIncrement() }>Up</button>
-                <button ref={ e => { decButton = e }} onClick={ (e) => onDecrement() }>Down</button>
-                <button ref={ e => { incButton3 = e }} onClick={ (e) => onIncrement3() }>Up</button>
-            </div>
+      <div className='counter-form-button-container'>
+        <div  ref={e => { counterDisplay = e; }} >{counter}</div>
+        <button ref={e => { incButton = e; }} onClick={e => onIncrement()}>Up</button>
+        <button ref={e => { decButton = e; }} onClick={e => onDecrement()}>Down</button>
+        <button ref={e => { incButton3 = e; }} onClick={e => onIncrement3()}>Up</button>
+      </div>
 		);
 	}
 }
-let CounterFormCausalityRedux = CausalityRedux.connectChangersAndStateToProps(CounterForm, COUNTER_STATE, ['onIncrement', 'onDecrement', 'onIncrement3'], ['counter']);
+const CounterFormCausalityRedux = CausalityRedux.connectChangersAndStateToProps(CounterForm, COUNTER_STATE, ['onIncrement', 'onDecrement', 'onIncrement3'], ['counter']);
 
 class CounterForm2 extends React.Component {
-	render() {
+  render() {
 		return( 
-            <button ref={ e => { incButton2 = e }} onClick={ e => this.props.onIncrement() }>Up</button>
+      <button ref={e => { incButton2 = e; }} onClick={e => this.props.onIncrement()}>Up</button>
 		);
 	}
 }
-let CounterForm2CausalityRedux = CausalityRedux.connectChangersToProps(CounterForm2, COUNTER_STATE, ['onIncrement']);
+const CounterForm2CausalityRedux = CausalityRedux.connectChangersToProps(CounterForm2, COUNTER_STATE, ['onIncrement']);
 
 class CounterForm3 extends React.Component {
-    componentDidUpdate() {
-        update2 = true ;
-    }
+  componentDidUpdate() {
+    update2 = true;
+  }
 	render() {
 		return( 
-            <div  ref={ e => { counterDisplay2 = e }} >{this.props.counter}</div>
+      <div  ref={ e => { counterDisplay2 = e }} >{this.props.counter}</div>
 		);
 	}
 }
-let CounterForm3CausalityRedux = CausalityRedux.connectStateToProps(CounterForm3, COUNTER_STATE, ['counter']);
+const CounterForm3CausalityRedux = CausalityRedux.connectStateToProps(CounterForm3, COUNTER_STATE, ['counter']);
 
-let numEditUpdates = 0 ;
+let numEditUpdates = 0;
 class EditField extends React.Component {
-    componentDidUpdate() {
-        numEditUpdates++;
-    }
-    componentDidMount() {
-        inputField.onchange = this.props.onChangeField.bind(this);
-    }
+  componentDidMount() {
+    inputField.onchange = this.props.onChangeField.bind(this);
+  }
+  componentDidUpdate() {
+    numEditUpdates++;
+  }
 	render() {
         const {fieldValue, onChangeField} = this.props; 
         return(
-            <input ref={ e => { inputField = e }}
+            <input ref={e => {inputField = e;}}
                 type="text"
                 name="ID"
                 required="required"
-                value={ fieldValue }
+                value={fieldValue}
                 placeholder="Name"
-                onChange={ (e) => onChangeField(e.target.value) }
+                onChange={e => onChangeField(e.target.value)}
             />
         );
 	}
 }
-let EditFieldCausalityRedux = CausalityRedux.connectChangersAndStateToProps(EditField, FIELD_STATE, ['onChangeField'], ['fieldValue'] );
+const EditFieldCausalityRedux = CausalityRedux.connectChangersAndStateToProps(EditField, FIELD_STATE, ['onChangeField'], ['fieldValue']);
 
 ReactDOM.render(
     <Provider store={CausalityRedux.store}>
@@ -154,12 +153,12 @@ let intervalID;
 let currentTime;
 let numEditUpdatesExpected=0;
 
-let which = 0 ;
+let which = 0;
 function handleReactAsync(done) {
-    if (( update && update2 && (which == 0)) || ((numEditUpdates == numEditUpdatesExpected) && (which==1))) {
+    if ( update && update2 && which === 0 || numEditUpdates === numEditUpdatesExpected && which === 1 ) {
         clearInterval(intervalID);
         done();
-    } else if ( ( new Date() - currentTime ) > 100 ) {
+    } else if ( new Date() - currentTime > 100 ) {
         clearInterval(intervalID);
         done();
     }
@@ -170,9 +169,9 @@ function handleReactAsyncStart(done) {
 }
 
 function testStart() {
-    update = false ;
-    update2 = false ;
-    numEditUpdates = 0 ;
+    update = false;
+    update2 = false;
+    numEditUpdates = 0;
     onChangeFieldFunctionCalled = false;
     currentTime = new Date();
 }
@@ -195,15 +194,15 @@ describe('Operations CounterForm and CounterForm3', function(done){
   });
   
   it('Increment button should increment counter in the COUNTER_STATE partition.', function(){
-    assert(counterStore.getState().counter == 1 );
+    assert(counterStore.getState().counter === 1 );
   });
   
   it('Counter displayed in component CounterForm should have updated.', function(){
-    assert(counterDisplay.innerHTML == "1" );
+    assert(counterDisplay.innerHTML === "1" );
   });
   
   it('Counter displayed in component CounterForm3 should have updated.', function(){
-    assert(counterDisplay2.innerHTML == "1" );
+    assert(counterDisplay2.innerHTML === "1" );
   });
 
   //
@@ -217,15 +216,15 @@ describe('Operations CounterForm and CounterForm3', function(done){
   });
   
   it('Decrement button should decrement counter in the COUNTER_STATE partition.', function(){
-    assert(counterStore.getState().counter == 0 );
+    assert(counterStore.getState().counter === 0 );
   });
   
   it('Counter displayed in component should have updated.', function(){
-    assert(counterDisplay.innerHTML == "0" );
+    assert(counterDisplay.innerHTML === "0" );
   });
   
   it('Counter displayed in component CounterForm3 should have updated.', function(){
-    assert(counterDisplay2.innerHTML == "0" );
+    assert(counterDisplay2.innerHTML === "0" );
   });
 
   //  
@@ -239,7 +238,7 @@ describe('Operations CounterForm and CounterForm3', function(done){
   });
   
   it('Increment3 button should increment counter3 in the COUNTER_STATE partition.', function(){
-    assert(counterStore.getState().counter3 == 1 );
+    assert(counterStore.getState().counter3 === 1 );
   });
   
   it('Components CounterForm and CounterForm3 should not have rendered.', function(){
@@ -256,17 +255,17 @@ describe('Operations CounterForm and CounterForm3', function(done){
   });
   
   it('Increment button should increment counter in the COUNTER_STATE partition to exercise connectChangersToProps.', function(){
-    assert(counterStore.getState().counter == 1 );
+    assert(counterStore.getState().counter === 1 );
   });
   
   it('Counter displayed in component CounterForm should have updated.', function(){
-    assert(counterDisplay.innerHTML == "1" );
+    assert(counterDisplay.innerHTML === "1" );
   });
   
   it('Counter displayed in component CounterForm3 should have updated.', function(){
-    assert(counterDisplay2.innerHTML == "1" );
+    assert(counterDisplay2.innerHTML === "1" );
   });
-})
+});
 
 
 //
@@ -276,7 +275,7 @@ describe('Operations CounterForm and CounterForm3', function(done){
 describe('EditField corrected by business logic.', function(){
 
   it('Try onchange on the input field.', function(done){
-    which = 1 ;
+    which = 1;
     testStart();
     numEditUpdatesExpected = 1;
     inputField.onchange('abcd2');
@@ -289,13 +288,13 @@ describe('EditField corrected by business logic.', function(){
   
  
   it('Render on the edit field should be called.', function(){
-    assert(numEditUpdates == numEditUpdatesExpected);
+    assert(numEditUpdates === numEditUpdatesExpected);
   });
   
   it('Verify that the input field was corrected by the business logic to "abcd".', function(){
     assert(inputField.value = 'abcd');
   });
-})
+});
 
 
 //
@@ -306,7 +305,7 @@ let field = 'aawqz';
 describe('EditField not corrected by business logic.', function(){
 
   it('Try onchange on the input field.', function(done){
-    which = 1 ;
+    which = 1;
     testStart();
     numEditUpdatesExpected = 1;
     CausalityRedux.store[FIELD_STATE].setField(field);
@@ -324,7 +323,7 @@ describe('EditField not corrected by business logic.', function(){
     // it should not be called a second time since the business logic does not change its value but sets it anyway.
     // When a value is not change in the props (ie stays the same) then the component should not be rendered.
     //
-    assert(numEditUpdates == numEditUpdatesExpected);
+    assert(numEditUpdates === numEditUpdatesExpected);
   });
   
   it('Verify that the input field was not corrected by the business logic and remained at "aawqz".', function(){
@@ -333,7 +332,7 @@ describe('EditField not corrected by business logic.', function(){
     assert(inputField.value = 'aawqz');
   });
 
-})
+});
 
 
 

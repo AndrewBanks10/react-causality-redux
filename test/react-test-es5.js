@@ -110,321 +110,6 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-module.exports =
-/******/function (modules) {
-    // webpackBootstrap
-    /******/ // The module cache
-    /******/var installedModules = {};
-    /******/
-    /******/ // The require function
-    /******/function __webpack_require__(moduleId) {
-        /******/
-        /******/ // Check if module is in cache
-        /******/if (installedModules[moduleId]) {
-            /******/return installedModules[moduleId].exports;
-            /******/
-        }
-        /******/ // Create a new module (and put it into the cache)
-        /******/var module = installedModules[moduleId] = {
-            /******/i: moduleId,
-            /******/l: false,
-            /******/exports: {}
-            /******/ };
-        /******/
-        /******/ // Execute the module function
-        /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-        /******/
-        /******/ // Flag the module as loaded
-        /******/module.l = true;
-        /******/
-        /******/ // Return the exports of the module
-        /******/return module.exports;
-        /******/
-    }
-    /******/
-    /******/
-    /******/ // expose the modules object (__webpack_modules__)
-    /******/__webpack_require__.m = modules;
-    /******/
-    /******/ // expose the module cache
-    /******/__webpack_require__.c = installedModules;
-    /******/
-    /******/ // identity function for calling harmony imports with the correct context
-    /******/__webpack_require__.i = function (value) {
-        return value;
-    };
-    /******/
-    /******/ // define getter function for harmony exports
-    /******/__webpack_require__.d = function (exports, name, getter) {
-        /******/if (!__webpack_require__.o(exports, name)) {
-            /******/Object.defineProperty(exports, name, {
-                /******/configurable: false,
-                /******/enumerable: true,
-                /******/get: getter
-                /******/ });
-            /******/
-        }
-        /******/
-    };
-    /******/
-    /******/ // getDefaultExport function for compatibility with non-harmony modules
-    /******/__webpack_require__.n = function (module) {
-        /******/var getter = module && module.__esModule ?
-        /******/function getDefault() {
-            return module['default'];
-        } :
-        /******/function getModuleExports() {
-            return module;
-        };
-        /******/__webpack_require__.d(getter, 'a', getter);
-        /******/return getter;
-        /******/
-    };
-    /******/
-    /******/ // Object.prototype.hasOwnProperty.call
-    /******/__webpack_require__.o = function (object, property) {
-        return Object.prototype.hasOwnProperty.call(object, property);
-    };
-    /******/
-    /******/ // __webpack_public_path__
-    /******/__webpack_require__.p = "";
-    /******/
-    /******/ // Load entry module and return exports
-    /******/return __webpack_require__(__webpack_require__.s = 2);
-    /******/
-}(
-/************************************************************************/
-/******/[
-/* 0 */
-/***/function (module, exports) {
-
-    module.exports = __webpack_require__(0);
-
-    /***/
-},
-/* 1 */
-/***/function (module, exports) {
-
-    module.exports = __webpack_require__(1);
-
-    /***/
-},
-/* 2 */
-/***/function (module, exports, __webpack_require__) {
-
-    "use strict";
-
-    var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-        return typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
-    } : function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
-    }; /** @preserve © 2017 Andrew Banks ALL RIGHTS RESERVED */
-
-    var _reactRedux = __webpack_require__(1);
-
-    var _causalityRedux = __webpack_require__(0);
-
-    var _causalityRedux2 = _interopRequireDefault(_causalityRedux);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : { default: obj };
-    }
-
-    (function () {
-
-        var undefinedString = 'undefined';
-
-        var error = function error(msg) {
-            throw new Error('react-causality-redux: ' + msg);
-        };
-
-        if ((typeof _causalityRedux2.default === 'undefined' ? 'undefined' : _typeof(_causalityRedux2.default)) == undefinedString) error('CausalityRedux is undefined');
-
-        var reactreduxConnect = undefined;
-        if ((typeof _reactRedux.connect === 'undefined' ? 'undefined' : _typeof(_reactRedux.connect)) != undefinedString) reactreduxConnect = _reactRedux.connect;
-
-        if ((typeof reactreduxConnect === 'undefined' ? 'undefined' : _typeof(reactreduxConnect)) == undefinedString) {
-            if ((typeof ReactRedux === 'undefined' ? 'undefined' : _typeof(ReactRedux)) == undefinedString) error('ReactRedux is undefined');
-            reactreduxConnect = ReactRedux.connect;
-        }
-
-        function handleListeners(arrArg) {
-            var hasListerners = false;
-            arrArg.forEach(function (p) {
-                hasListerners = hasListerners || _typeof(p.changers) != undefinedString;
-            });
-            if (!hasListerners) return undefined;
-
-            var mapDispatchToProps = function mapDispatchToProps() {
-                var obj = {};
-                arrArg.forEach(function (p) {
-                    if (_typeof(p.changers) != undefinedString) {
-                        if (p.changers.length == 0) {
-                            var sEntry = _causalityRedux2.default.partitionDefinitions.find(function (entry) {
-                                return p.partitionName == entry.partitionName;
-                            });
-                            if (!sEntry) error(p.partitionName + ' not found.');
-                            for (var o in sEntry.changers) {
-                                obj[o] = _causalityRedux2.default.store[p.partitionName][o];
-                            }
-                        } else {
-                            p.changers.forEach(function (o) {
-                                if (typeof _causalityRedux2.default.store[p.partitionName][o] != 'function') throw 'The entry ' + o + ' is not a function.';
-                                obj[o] = _causalityRedux2.default.store[p.partitionName][o];
-                            });
-                        }
-                    }
-                });
-                return obj;
-            };
-
-            return mapDispatchToProps;
-        }
-
-        function handleStateConnections(arrArg) {
-            var hasState = false;
-            arrArg.forEach(function (p) {
-                hasState = hasState || _typeof(p.stateEntries) != undefinedString;
-
-                var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
-                    return p.partitionName == e.partitionName;
-                });
-                if (!partition) throw p.partitionName + ' is not a valid state entry.';
-
-                if ((typeof stateEntries === 'undefined' ? 'undefined' : _typeof(stateEntries)) != undefinedString) {
-                    if (!Array.isArray(stateEntries)) throw 'The stateEntries parameter is not an array for ' + p.partitionName + '.';
-                    stateEntries.forEach(function (se) {
-                        if (_typeof(partition.defaultState[se]) == undefinedString) throw se + ' is not a valid key in the state partition ' + p.partitionName + '.';
-                    });
-                }
-            });
-
-            if (!hasState) return undefined;
-
-            var mapStateToProps = function mapStateToProps(state) {
-                var obj = {};
-                arrArg.forEach(function (p) {
-                    if (_typeof(p.stateEntries) != undefinedString) {
-                        if (p.stateEntries.length == 0) {
-                            var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
-                                return p.partitionName == e.partitionName;
-                            });
-                            for (var o in partition.defaultState) {
-                                obj[o] = state[p.partitionName][o];
-                            }
-                        };
-
-                        p.stateEntries.forEach(function (entry) {
-                            obj[entry] = state[p.partitionName][entry];
-                        });
-                    }
-                });
-                return obj;
-            };
-
-            return mapStateToProps;
-        }
-
-        function doReduxConnect(reactComponent, reactComponentName, combinedPartitionName, mapStateToProps, mapDispatchToProps, mergeProps, options) {
-            var simpleReduxComponent = reactreduxConnect(mapStateToProps, mapDispatchToProps, mergeProps, options)(reactComponent);
-
-            simpleReduxComponent.prototype.priorRender = simpleReduxComponent.prototype.render;
-            simpleReduxComponent.prototype.componentName = reactComponentName == undefinedString ? "React Component" : reactComponentName;
-            simpleReduxComponent.prototype.combinedPartitionName = combinedPartitionName;
-            simpleReduxComponent.prototype.render = function () {
-                var priorState = this.stateProps;
-                var returnComponent = this.priorRender();
-                try {
-                    if (typeof _causalityRedux2.default.onListener == 'function') {
-                        if (priorState && !_causalityRedux2.default.shallowEqual(priorState, this.stateProps)) _causalityRedux2.default.onListener({ nextState: this.stateProps, listenerName: this.componentName, partitionName: this.combinedPartitionName });
-                    }
-                } catch (msg) {}
-                return returnComponent;
-            };
-
-            return simpleReduxComponent;
-        }
-
-        function connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options) {
-            if (!_causalityRedux2.default.store) throw 'CausalityRedux.createStore must be called before connecting to react components.';
-
-            var combinedPartitionName = "";
-            arrArg.forEach(function (p) {
-                if (combinedPartitionName != "") combinedPartitionName += ', ';
-                combinedPartitionName += p.partitionName;
-            });
-
-            var mapDispatchToProps = handleListeners(arrArg);
-            var mapStateToProps = handleStateConnections(arrArg);
-            var simpleReduxComponent = doReduxConnect(reactComponent, reactComponentName, combinedPartitionName, mapStateToProps, mapDispatchToProps, mergeProps, options);
-            return simpleReduxComponent;
-        }
-
-        _causalityRedux2.default.connectChangersAndStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6, arg7) {
-            var arrArg = arg2;
-            if (!Array.isArray(arg2)) {
-                arrArg = [];
-                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
-                if ((typeof arg4 === 'undefined' ? 'undefined' : _typeof(arg4)) == undefinedString) arg4 = [];
-                arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: arg4 });
-                var mergeProps = arg6;
-                var options = arg7;
-                var reactComponentName = arg5;
-            } else {
-                var mergeProps = arg4;
-                var options = arg5;
-                var reactComponentName = arg3;
-            }
-            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
-        };
-
-        _causalityRedux2.default.connectStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
-            var arrArg = arg2;
-            if (!Array.isArray(arg2)) {
-                arrArg = [];
-                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
-                arrArg.push({ partitionName: arg2, changers: undefined, stateEntries: arg3 });
-                var mergeProps = arg5;
-                var options = arg6;
-                var reactComponentName = arg4;
-            } else {
-                var mergeProps = arg4;
-                var options = arg5;
-                var reactComponentName = arg3;
-            }
-            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
-        };
-
-        _causalityRedux2.default.connectChangersToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
-            var arrArg = arg2;
-            if (!Array.isArray(arg2)) {
-                arrArg = [];
-                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) == undefinedString) arg3 = [];
-                arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: undefined });
-                var mergeProps = arg5;
-                var options = arg6;
-                var reactComponentName = arg4;
-            } else {
-                var mergeProps = arg4;
-                var options = arg5;
-                var reactComponentName = arg3;
-            }
-            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
-        };
-    })();
-
-    /***/
-}]);
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
 // compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
@@ -919,6 +604,319 @@ var objectKeys = Object.keys || function (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+module.exports =
+/******/function (modules) {
+    // webpackBootstrap
+    /******/ // The module cache
+    /******/var installedModules = {};
+    /******/
+    /******/ // The require function
+    /******/function __webpack_require__(moduleId) {
+        /******/
+        /******/ // Check if module is in cache
+        /******/if (installedModules[moduleId]) {
+            /******/return installedModules[moduleId].exports;
+            /******/
+        }
+        /******/ // Create a new module (and put it into the cache)
+        /******/var module = installedModules[moduleId] = {
+            /******/i: moduleId,
+            /******/l: false,
+            /******/exports: {}
+            /******/ };
+        /******/
+        /******/ // Execute the module function
+        /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+        /******/
+        /******/ // Flag the module as loaded
+        /******/module.l = true;
+        /******/
+        /******/ // Return the exports of the module
+        /******/return module.exports;
+        /******/
+    }
+    /******/
+    /******/
+    /******/ // expose the modules object (__webpack_modules__)
+    /******/__webpack_require__.m = modules;
+    /******/
+    /******/ // expose the module cache
+    /******/__webpack_require__.c = installedModules;
+    /******/
+    /******/ // identity function for calling harmony imports with the correct context
+    /******/__webpack_require__.i = function (value) {
+        return value;
+    };
+    /******/
+    /******/ // define getter function for harmony exports
+    /******/__webpack_require__.d = function (exports, name, getter) {
+        /******/if (!__webpack_require__.o(exports, name)) {
+            /******/Object.defineProperty(exports, name, {
+                /******/configurable: false,
+                /******/enumerable: true,
+                /******/get: getter
+                /******/ });
+            /******/
+        }
+        /******/
+    };
+    /******/
+    /******/ // getDefaultExport function for compatibility with non-harmony modules
+    /******/__webpack_require__.n = function (module) {
+        /******/var getter = module && module.__esModule ?
+        /******/function getDefault() {
+            return module['default'];
+        } :
+        /******/function getModuleExports() {
+            return module;
+        };
+        /******/__webpack_require__.d(getter, 'a', getter);
+        /******/return getter;
+        /******/
+    };
+    /******/
+    /******/ // Object.prototype.hasOwnProperty.call
+    /******/__webpack_require__.o = function (object, property) {
+        return Object.prototype.hasOwnProperty.call(object, property);
+    };
+    /******/
+    /******/ // __webpack_public_path__
+    /******/__webpack_require__.p = "";
+    /******/
+    /******/ // Load entry module and return exports
+    /******/return __webpack_require__(__webpack_require__.s = 2);
+    /******/
+}(
+/************************************************************************/
+/******/[
+/* 0 */
+/***/function (module, exports) {
+
+    module.exports = __webpack_require__(0);
+
+    /***/
+},
+/* 1 */
+/***/function (module, exports) {
+
+    module.exports = __webpack_require__(1);
+
+    /***/
+},
+/* 2 */
+/***/function (module, exports, __webpack_require__) {
+
+    "use strict";
+
+    var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+        return typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+    } : function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+    }; /** @preserve © 2017 Andrew Banks ALL RIGHTS RESERVED */
+
+    var _reactRedux = __webpack_require__(1);
+
+    var _causalityRedux = __webpack_require__(0);
+
+    var _causalityRedux2 = _interopRequireDefault(_causalityRedux);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : { default: obj };
+    }
+
+    (function () {
+
+        var undefinedString = 'undefined';
+
+        var error = function error(msg) {
+            throw new Error('react-causality-redux: ' + msg);
+        };
+
+        if ((typeof _causalityRedux2.default === 'undefined' ? 'undefined' : _typeof(_causalityRedux2.default)) === undefinedString) error('CausalityRedux is undefined');
+
+        var reactreduxConnect = undefined;
+        if ((typeof _reactRedux.connect === 'undefined' ? 'undefined' : _typeof(_reactRedux.connect)) !== undefinedString) reactreduxConnect = _reactRedux.connect;
+
+        if ((typeof reactreduxConnect === 'undefined' ? 'undefined' : _typeof(reactreduxConnect)) === undefinedString) {
+            if ((typeof ReactRedux === 'undefined' ? 'undefined' : _typeof(ReactRedux)) === undefinedString) error('ReactRedux is undefined');
+            reactreduxConnect = ReactRedux.connect;
+        }
+
+        function handleListeners(arrArg) {
+            var hasListerners = false;
+            arrArg.forEach(function (p) {
+                hasListerners = hasListerners || _typeof(p.changers) !== undefinedString;
+            });
+            if (!hasListerners) return undefined;
+
+            var mapDispatchToProps = function mapDispatchToProps() {
+                var obj = {};
+                arrArg.forEach(function (p) {
+                    if (_typeof(p.changers) !== undefinedString) {
+                        if (p.changers.length === 0) {
+                            var sEntry = _causalityRedux2.default.partitionDefinitions.find(function (entry) {
+                                return p.partitionName === entry.partitionName;
+                            });
+                            if (!sEntry) error(p.partitionName + ' not found.');
+                            for (var o in sEntry.changers) {
+                                obj[o] = _causalityRedux2.default.store[p.partitionName][o];
+                            }
+                        } else {
+                            p.changers.forEach(function (o) {
+                                if (typeof _causalityRedux2.default.store[p.partitionName][o] !== 'function') throw 'The entry ' + o + ' is not a function.';
+                                obj[o] = _causalityRedux2.default.store[p.partitionName][o];
+                            });
+                        }
+                    }
+                });
+                return obj;
+            };
+
+            return mapDispatchToProps;
+        }
+
+        function handleStateConnections(arrArg) {
+            var hasState = false;
+            arrArg.forEach(function (p) {
+                hasState = hasState || _typeof(p.stateEntries) !== undefinedString;
+
+                var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
+                    return p.partitionName === e.partitionName;
+                });
+                if (!partition) throw p.partitionName + ' is not a valid state entry.';
+
+                if (_typeof(p.stateEntries) !== undefinedString) {
+                    if (!Array.isArray(p.stateEntries)) throw 'The stateEntries parameter is not an array for ' + p.partitionName + '.';
+                    p.stateEntries.forEach(function (se) {
+                        if (_typeof(partition.defaultState[se]) === undefinedString) throw se + ' is not a valid key in the state partition ' + p.partitionName + '.';
+                    });
+                }
+            });
+
+            if (!hasState) return undefined;
+
+            var mapStateToProps = function mapStateToProps(state) {
+                var obj = {};
+                arrArg.forEach(function (p) {
+                    if (_typeof(p.stateEntries) !== undefinedString) {
+                        if (p.stateEntries.length === 0) {
+                            var partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
+                                return p.partitionName === e.partitionName;
+                            });
+                            for (var o in partition.defaultState) {
+                                obj[o] = state[p.partitionName][o];
+                            }
+                        }
+
+                        p.stateEntries.forEach(function (entry) {
+                            obj[entry] = state[p.partitionName][entry];
+                        });
+                    }
+                });
+                return obj;
+            };
+
+            return mapStateToProps;
+        }
+
+        function doReduxConnect(reactComponent, reactComponentName, combinedPartitionName, mapStateToProps, mapDispatchToProps, mergeProps, options) {
+            var simpleReduxComponent = reactreduxConnect(mapStateToProps, mapDispatchToProps, mergeProps, options)(reactComponent);
+
+            simpleReduxComponent.prototype.priorRender = simpleReduxComponent.prototype.render;
+            simpleReduxComponent.prototype.componentName = reactComponentName === undefinedString ? 'React Component' : reactComponentName;
+            simpleReduxComponent.prototype.combinedPartitionName = combinedPartitionName;
+            simpleReduxComponent.prototype.render = function () {
+                var priorState = this.stateProps;
+                var returnComponent = this.priorRender();
+                if (typeof _causalityRedux2.default.onListener === 'function') {
+                    if (priorState && !_causalityRedux2.default.shallowEqual(priorState, this.stateProps)) _causalityRedux2.default.onListener({ nextState: this.stateProps, listenerName: this.componentName, partitionName: this.combinedPartitionName });
+                }
+                return returnComponent;
+            };
+
+            return simpleReduxComponent;
+        }
+
+        function connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options) {
+            if (!_causalityRedux2.default.store) throw 'CausalityRedux.createStore must be called before connecting to react components.';
+
+            var combinedPartitionName = '';
+            arrArg.forEach(function (p) {
+                if (combinedPartitionName !== '') combinedPartitionName += ', ';
+                combinedPartitionName += p.partitionName;
+            });
+
+            var mapDispatchToProps = handleListeners(arrArg);
+            var mapStateToProps = handleStateConnections(arrArg);
+            var simpleReduxComponent = doReduxConnect(reactComponent, reactComponentName, combinedPartitionName, mapStateToProps, mapDispatchToProps, mergeProps, options);
+            return simpleReduxComponent;
+        }
+
+        _causalityRedux2.default.connectChangersAndStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6, arg7) {
+            var arrArg = arg2;
+            var mergeProps = arg6;
+            var options = arg7;
+            var reactComponentName = arg5;
+            if (!Array.isArray(arg2)) {
+                arrArg = [];
+                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
+                if ((typeof arg4 === 'undefined' ? 'undefined' : _typeof(arg4)) === undefinedString) arg4 = [];
+                arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: arg4 });
+            } else {
+                mergeProps = arg4;
+                options = arg5;
+                reactComponentName = arg3;
+            }
+            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
+        };
+
+        _causalityRedux2.default.connectStateToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
+            var arrArg = arg2;
+            var mergeProps = arg5;
+            var options = arg6;
+            var reactComponentName = arg4;
+            if (!Array.isArray(arg2)) {
+                arrArg = [];
+                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
+                arrArg.push({ partitionName: arg2, changers: undefined, stateEntries: arg3 });
+            } else {
+                mergeProps = arg4;
+                options = arg5;
+                reactComponentName = arg3;
+            }
+            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
+        };
+
+        _causalityRedux2.default.connectChangersToProps = function (reactComponent, arg2, arg3, arg4, arg5, arg6) {
+            var arrArg = arg2;
+            var mergeProps = arg5;
+            var options = arg6;
+            var reactComponentName = arg4;
+            if (!Array.isArray(arg2)) {
+                arrArg = [];
+                if ((typeof arg3 === 'undefined' ? 'undefined' : _typeof(arg3)) === undefinedString) arg3 = [];
+                arrArg.push({ partitionName: arg2, changers: arg3, stateEntries: undefined });
+            } else {
+                mergeProps = arg4;
+                options = arg5;
+                reactComponentName = arg3;
+            }
+            return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
+        };
+    })();
+
+    /***/
+}]);
+
+/***/ }),
 /* 5 */
 /***/ (function(module, exports) {
 
@@ -945,7 +943,7 @@ module.exports = require('redux');
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _assert = __webpack_require__(4);
+var _assert = __webpack_require__(3);
 
 var _assert2 = _interopRequireDefault(_assert);
 
@@ -965,7 +963,7 @@ var _causalityRedux2 = _interopRequireDefault(_causalityRedux);
 
 var _reactRedux = __webpack_require__(1);
 
-__webpack_require__(3);
+__webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1002,7 +1000,8 @@ function init() {
   function onChangeField(arg) {
     onChangeFieldFunctionCalled = true;
     var x = /^[a-zA-Z\s]*/.exec(arg);
-    if (x == null) var fieldValue = "";else var fieldValue = x[0];
+    var fieldValue = "";
+    if (x !== null) fieldValue = x[0];
     fieldState.setField(fieldValue);
   }
   fieldState.subscribe(onChangeField, ['onChangeField'], 'onChangeField');
@@ -1014,16 +1013,16 @@ var counterStore = store[COUNTER_STATE];
 
 describe('CausalityRedux createStore', function () {
   it('CausalityRedux.store should exist', function () {
-    (0, _assert2.default)(typeof store != 'undefined');
+    (0, _assert2.default)(typeof store !== 'undefined');
   });
   it('CausalityRedux.connectChangersAndStateToProps should be a function.', function () {
-    (0, _assert2.default)(typeof _causalityRedux2.default.connectChangersAndStateToProps == 'function');
+    (0, _assert2.default)(typeof _causalityRedux2.default.connectChangersAndStateToProps === 'function');
   });
   it('CausalityRedux.connectChangersToProps should be a function.', function () {
-    (0, _assert2.default)(typeof _causalityRedux2.default.connectChangersToProps == 'function');
+    (0, _assert2.default)(typeof _causalityRedux2.default.connectChangersToProps === 'function');
   });
   it('CausalityRedux.connectStateToProps should be a function.', function () {
-    (0, _assert2.default)(typeof _causalityRedux2.default.connectStateToProps == 'function');
+    (0, _assert2.default)(typeof _causalityRedux2.default.connectStateToProps === 'function');
   });
 });
 
@@ -1182,14 +1181,14 @@ var EditField = function (_React$Component4) {
   }
 
   _createClass(EditField, [{
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate() {
-      numEditUpdates++;
-    }
-  }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
       inputField.onchange = this.props.onChangeField.bind(this);
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      numEditUpdates++;
     }
   }, {
     key: 'render',
@@ -1237,7 +1236,7 @@ var numEditUpdatesExpected = 0;
 
 var which = 0;
 function handleReactAsync(done) {
-  if (update && update2 && which == 0 || numEditUpdates == numEditUpdatesExpected && which == 1) {
+  if (update && update2 && which === 0 || numEditUpdates === numEditUpdatesExpected && which === 1) {
     clearInterval(intervalID);
     done();
   } else if (new Date() - currentTime > 100) {
@@ -1276,15 +1275,15 @@ describe('Operations CounterForm and CounterForm3', function (done) {
   });
 
   it('Increment button should increment counter in the COUNTER_STATE partition.', function () {
-    (0, _assert2.default)(counterStore.getState().counter == 1);
+    (0, _assert2.default)(counterStore.getState().counter === 1);
   });
 
   it('Counter displayed in component CounterForm should have updated.', function () {
-    (0, _assert2.default)(counterDisplay.innerHTML == "1");
+    (0, _assert2.default)(counterDisplay.innerHTML === "1");
   });
 
   it('Counter displayed in component CounterForm3 should have updated.', function () {
-    (0, _assert2.default)(counterDisplay2.innerHTML == "1");
+    (0, _assert2.default)(counterDisplay2.innerHTML === "1");
   });
 
   //
@@ -1298,15 +1297,15 @@ describe('Operations CounterForm and CounterForm3', function (done) {
   });
 
   it('Decrement button should decrement counter in the COUNTER_STATE partition.', function () {
-    (0, _assert2.default)(counterStore.getState().counter == 0);
+    (0, _assert2.default)(counterStore.getState().counter === 0);
   });
 
   it('Counter displayed in component should have updated.', function () {
-    (0, _assert2.default)(counterDisplay.innerHTML == "0");
+    (0, _assert2.default)(counterDisplay.innerHTML === "0");
   });
 
   it('Counter displayed in component CounterForm3 should have updated.', function () {
-    (0, _assert2.default)(counterDisplay2.innerHTML == "0");
+    (0, _assert2.default)(counterDisplay2.innerHTML === "0");
   });
 
   //  
@@ -1320,7 +1319,7 @@ describe('Operations CounterForm and CounterForm3', function (done) {
   });
 
   it('Increment3 button should increment counter3 in the COUNTER_STATE partition.', function () {
-    (0, _assert2.default)(counterStore.getState().counter3 == 1);
+    (0, _assert2.default)(counterStore.getState().counter3 === 1);
   });
 
   it('Components CounterForm and CounterForm3 should not have rendered.', function () {
@@ -1337,15 +1336,15 @@ describe('Operations CounterForm and CounterForm3', function (done) {
   });
 
   it('Increment button should increment counter in the COUNTER_STATE partition to exercise connectChangersToProps.', function () {
-    (0, _assert2.default)(counterStore.getState().counter == 1);
+    (0, _assert2.default)(counterStore.getState().counter === 1);
   });
 
   it('Counter displayed in component CounterForm should have updated.', function () {
-    (0, _assert2.default)(counterDisplay.innerHTML == "1");
+    (0, _assert2.default)(counterDisplay.innerHTML === "1");
   });
 
   it('Counter displayed in component CounterForm3 should have updated.', function () {
-    (0, _assert2.default)(counterDisplay2.innerHTML == "1");
+    (0, _assert2.default)(counterDisplay2.innerHTML === "1");
   });
 });
 
@@ -1368,7 +1367,7 @@ describe('EditField corrected by business logic.', function () {
   });
 
   it('Render on the edit field should be called.', function () {
-    (0, _assert2.default)(numEditUpdates == numEditUpdatesExpected);
+    (0, _assert2.default)(numEditUpdates === numEditUpdatesExpected);
   });
 
   it('Verify that the input field was corrected by the business logic to "abcd".', function () {
@@ -1402,7 +1401,7 @@ describe('EditField not corrected by business logic.', function () {
     // it should not be called a second time since the business logic does not change its value but sets it anyway.
     // When a value is not change in the props (ie stays the same) then the component should not be rendered.
     //
-    (0, _assert2.default)(numEditUpdates == numEditUpdatesExpected);
+    (0, _assert2.default)(numEditUpdates === numEditUpdatesExpected);
   });
 
   it('Verify that the input field was not corrected by the business logic and remained at "aawqz".', function () {
