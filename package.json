@@ -1,6 +1,6 @@
 {
   "name": "react-causality-redux",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "Causality based extension of react-redux",
   "main": "lib/react-causality-redux.js",
   "scripts": {
@@ -24,7 +24,8 @@
     "jsdom": "^2.0.0",
     "mocha": "^3.3.0",
     "webpack": "^2.5.1",
-    "webpack-closure-compiler": "^2.1.4"
+    "webpack-closure-compiler": "^2.1.4",
+    "lodash": "^4.17.4"
   },
   "dependencies": {
     "react": "^15.5.4",

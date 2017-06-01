@@ -1,7 +1,7 @@
 /** @preserve © 2017 Andrew Banks ALL RIGHTS RESERVED */
 
-import {connect} from 'react-redux'
-import CausalityRedux from 'causality-redux'
+import { connect } from 'react-redux';
+import CausalityRedux from 'causality-redux';
 
 (function() {
 
@@ -43,7 +43,7 @@ import CausalityRedux from 'causality-redux'
                     } else {
                         p.changers.forEach( (o) => {
                             if ( typeof CausalityRedux.store[p.partitionName][o] !== 'function' )
-                                throw `The entry ${o} is not a function.`;
+                                error(`The entry ${o} is not a function.`);
                             obj[o] = CausalityRedux.store[p.partitionName][o];
                         });
                     }
@@ -64,14 +64,14 @@ import CausalityRedux from 'causality-redux'
                 p.partitionName === e.partitionName
             );
             if ( !partition )
-                throw `${p.partitionName} is not a valid state entry.`;
+                error(`${p.partitionName} is not a valid state entry.`);
             
             if ( typeof p.stateEntries !== undefinedString ) {
                 if ( !Array.isArray(p.stateEntries) )
-                    throw `The stateEntries parameter is not an array for ${p.partitionName}.`;
+                    error(`The stateEntries parameter is not an array for ${p.partitionName}.`);
                 p.stateEntries.forEach( se => {
                     if ( typeof partition.defaultState[se] === undefinedString )
-                        throw `${se} is not a valid key in the state partition ${p.partitionName}.`;
+                        error(`${se} is not a valid key in the state partition ${p.partitionName}.`);
                 });
             }
         });
@@ -128,7 +128,7 @@ import CausalityRedux from 'causality-redux'
 
     function connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options) {
         if ( !CausalityRedux.store )
-            throw 'CausalityRedux.createStore must be called before connecting to react components.';
+            error('CausalityRedux.createStore must be called before connecting to react components.');
         
         let combinedPartitionName = '';
         arrArg.forEach( p => {
