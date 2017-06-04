@@ -2,8 +2,50 @@
 
 Causality-redux is an extension to redux that significantly reduces redux and react-redux coding and debugging.
 
+To show how easy causality-redux is to use, consider the example below.
+
+```
+// First define the store partition as:
+const COUNTER_STATE = 'COUNTER_STATE';
+const reduxCounter = {
+    partitionName: COUNTER_STATE,
+    defaultState: { counter: 0 }, // Your required data for this component is defined here with initial values.
+    changerDefinitions: { // causality-redux provides a list of pre-defined changers. Two of them are shown below.
+        'onIncrement': { operation: CausalityRedux.operations.STATE_INCREMENT, impliedArguments: ['counter'] }, // This increments 'counter'
+        'onDecrement': { operation: CausalityRedux.operations.STATE_DECREMENT, impliedArguments: ['counter'] } // This decrements 'counter'
+    }
+}
+CausalityRedux.createStore([reduxCounter]); // Create the causality-redux store and use the store partition above for definitions.
+
+// To connect this to a react component, here is an example.
+const CounterForm = ({onIncrement, onDecrement, counter}) => 
+    <div>
+        <div>{`The current counter is ${counter}.`}</div>
+        <button onClick={ () => onIncrement() }>Up</button>
+        <button onClick={ () => onDecrement()}>Down</button>
+    </div>
+// Now wrap the component CounterForm
+const CounterFormCausalityRedux = CausalityRedux.connectChangersAndStateToProps(
+    CounterForm, // React component to wrap.
+    COUNTER_STATE, // State partition
+    ['onIncrement', 'onDecrement'], // This is an array of changers in COUNTER_STATE that you want passed into the props to use for changers.
+    ['counter'] // This is an array of values in COUNTER_STATE that you want passed into the props. Also, only render 
+                // this component when one or more of those values change and update the props with those changes.
+);
+
+const App = () =>
+    <Provider store={ CausalityRedux.store}>
+        <CounterFormCausalityRedux/>
+    </Provider>
+```
+
+That is all there is to it.
+Note that there are no changers, reducers, dispatching, redux connects or mapStateToProps/mapDispatchToProps definitions.
+
+
 ## Benefits of causality-redux
 - You can define multiple partitions within the redux store. This way, one partition can be associated exclusively with a causality chain of a UI component and its business logic. This also allows you to have shared partitions that can be used to change the state of such things as a UI busy loader than can be shared by different causality chains.
+- By assigning a partition to a specific UI component and its business logic, you can track changes just on that state partition for easier debugging of a new component and its business logic.
 - To implement causality, causality-redux exposes two main concepts, changers which initiate a cause and subscribers that subscribe as an effect to the cause. The programming steps taken by the subscriber as a result of the cause is the effect.
 - Specific keys within a partition can be targeted by a subscriber of state changes. So, the subscriber is not called unless one of the targets is changed.
 - The subscriber is called with the targeted keys/values that changed as an argument so that it does not need to call getState to figure out if the state changes apply to the subscriber.
