@@ -58,6 +58,10 @@ Note that there are no changers, reducers, dispatching, redux connects or mapSta
 - UI components do not need to import business logic functions or reference them since the components bind to changer string names instead of business functions. So, neither the business logic nor the UI components need to import anything about the other.
 - Allows hot re-loading of business code for easier debugging.
 - Provides middleware between business code and UI such as react or another other UI implementation. UI implementations come and go and with causality-redux you do not have to tear out your business code from the UI. There is a clean separation between the two with no importing needed from each other. So, if the UI implementation changes in the future, you only need to worry about the UI.
+- Causality-redux supports three types of plugins:
+  - Complete self contained react web component plugins that can be simply inserted into the UI. 
+  - Business logic plugins that are easily connected to UI components with one line of code.
+  - Reducer plugins to supplement built-in causality-redux reducers.
 - Causality-redux is very small only 4K gzipped.
 
 If you are using react, see [Github react-causality-redux](https://github.com/AndrewBanks10/react-causality-redux) for the react extension to causality-redux.
