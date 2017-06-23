@@ -3,7 +3,7 @@ const html = `<!DOCTYPE html><body><div id="reactroot"></div></body></html>`;
 
 let doc;
 let window;
-if ( typeof jsdom.JSDOM != 'undefined') {
+if ( typeof jsdom.JSDOM !== 'undefined') {
     doc = new jsdom.JSDOM(html);
     window = doc.window;
 } else {

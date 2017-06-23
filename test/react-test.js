@@ -1,3 +1,7 @@
+/* eslint-disable react/no-multi-comp */
+/* eslint-disable react/jsx-sort-prop-types */
+
+
 import assert from 'assert';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -107,7 +111,7 @@ class CounterForm3 extends React.Component {
   }
 	render() {
 		return( 
-      <div  ref={ e => { counterDisplay2 = e }} >{this.props.counter}</div>
+      <div ref={e => {counterDisplay2 = e;}} >{this.props.counter}</div>
 		);
 	}
 }
