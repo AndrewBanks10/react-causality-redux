@@ -125,18 +125,25 @@ function handleStateConnections(arrArg) {
     return mapStateToProps(getStateDefs(arrArg));
 }
 
+//
+// At this time, the redux connect wrapper class fails when using a constructor for this wrapped class.
+// So, instead of using 'this' in the constructor to save state, create a closure for the class which 
+// achieves the same goal of providing the parameters (Component, mapStateToProps, reactComponentName, 
+// combinedPartitionName, store) to the class when it is rendered.
+//
 function WrapConnectComponent(Component, mapStateToProps, reactComponentName, combinedPartitionName, store) {
     return class WrappedComponent extends Component {
         render() {
             // This is only called when a tracing onListener function is active.
             // Will not be called in production mode.
-            if (typeof CausalityRedux.onListener === 'function') {
+            if (typeof CausalityRedux.onListener === 'function' && typeof mapStateToProps === 'function') {
                 // Need to determine whether this render was caused by a store update.
                 const priorState = this.causalityReduxState;
                 this.causalityReduxState = mapStateToProps(store.getState());
                 if ( priorState && !CausalityRedux.shallowEqual(priorState, this.causalityReduxState) ) 
                     CausalityRedux.onListener({nextState: this.causalityReduxState, listenerName: reactComponentName, partitionName: combinedPartitionName});
             }
+            // redux connect render
             return super.render();
         }
     };
