@@ -242,6 +242,82 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);        
 }
 
+
+
+export function establishControllerConnections({ module, uiComponent, uiComponentName, partition, storeKeys, changerKeys, hotDisposeHandler }) {
+    // Create the causality-redux store and use the store partition above for definitions. 
+    // If the store has already been created elsewhere, then only the input partition is created.
+    CausalityRedux.createStore(partition);
+
+    partition = CausalityRedux.partitionDefinitions.find(e =>
+        partition.partitionName === e.partitionName
+    );
+
+    // Get access to the partition’s controller functions.
+    const partitionStore = CausalityRedux.store[partition.partitionName];
+
+    // Get a proxy to the store partition so that causality-redux can detect changes to the values of the partition.
+    const partitionState = partitionStore.partitionState;
+
+    // Allows setting multiple keys in a state partition.
+    const setState = partitionStore.setState;
+
+    const funcKeys = [];
+    const unsubscribers = [];
+    CausalityRedux.getKeys(partition.changerDefinitions).forEach(changerKey => {
+        const entry = partition.changerDefinitions[changerKey];
+        if (entry.operation === CausalityRedux.operations.STATE_FUNCTION_CALL) {
+            unsubscribers.push(partitionStore.subscribe(entry.controllerFunction, changerKey));
+            funcKeys.push(changerKey);
+        }    
+    });
+
+    if (typeof storeKeys === 'undefined')
+        storeKeys = Object.keys(partition.defaultState);
+    else if (storeKeys.length === 0)
+        storeKeys = undefined;
+
+    if (typeof changerKeys === 'undefined')
+        changerKeys = funcKeys;
+    else if (changerKeys.length === 0)
+        changerKeys = undefined;
+
+    uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
+    
+    if (typeof uiComponent !== 'undefined') {
+        uiComponent = CausalityRedux.connectChangersAndStateToProps(
+            uiComponent, // React component to wrap.
+            partition.partitionName, // State partition
+            // This is an array of names of changers/action creators defined in the partition that you want
+            // passed into the props by causality-redux so that the component can call these functions.
+            changerKeys,
+            // This is an array of keys in COUNTTEN_STATE whose values you want passed into the props.
+            // Whenever any value associated with a key listed in this array changes in the causality-redux store,
+            // causality-redux will cause the component to render with the new values set in the props.
+            storeKeys,
+            uiComponentName            
+        );
+    }
+
+    if (module.hot) {
+        // Add the dispose handler that is to be called before this module is changed out for the new one. 
+        // This must be done for any module with side effects like adding event listeners etc.
+        module.hot.dispose(function () {
+            unsubscribers.forEach(unsubscriber => unsubscriber());
+            if (typeof hotDisposeHandler === 'function')
+                hotDisposeHandler();
+        });
+    }
+
+    return {
+        partitionState,
+        setState,
+        partitionStore,
+        uiComponent
+    };
+}
+
 CausalityRedux.connectChangersAndStateToProps = connectChangersAndStateToProps;
 CausalityRedux.connectStateToProps = connectStateToProps;
 CausalityRedux.connectChangersToProps = connectChangersToProps;
+CausalityRedux.establishControllerConnections = establishControllerConnections;
