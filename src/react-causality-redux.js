@@ -262,6 +262,8 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
     // Allows setting multiple keys in a state partition.
     const setState = partitionStore.setState;
 
+    const getState = partitionStore.getState;
+
     const funcKeys = [];
     const unsubscribers = [];
     CausalityRedux.getKeys(partition.changerDefinitions).forEach(changerKey => {
@@ -273,7 +275,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
     });
 
     if (typeof storeKeys === 'undefined')
-        storeKeys = Object.keys(partition.defaultState);
+        storeKeys = CausalityRedux.getKeys(partition.defaultState);
     else if (storeKeys.length === 0)
         storeKeys = undefined;
 
@@ -281,10 +283,9 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
         changerKeys = funcKeys;
     else if (changerKeys.length === 0)
         changerKeys = undefined;
-
-    uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
     
     if (typeof uiComponent !== 'undefined') {
+        uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
         uiComponent = CausalityRedux.connectChangersAndStateToProps(
             uiComponent, // React component to wrap.
             partition.partitionName, // State partition
@@ -299,7 +300,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
         );
     }
 
-    if (module.hot) {
+    if (typeof module !== undefinedString && module.hot) {
         // Add the dispose handler that is to be called before this module is changed out for the new one. 
         // This must be done for any module with side effects like adding event listeners etc.
         module.hot.dispose(function () {
@@ -312,6 +313,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
     return {
         partitionState,
         setState,
+        getState,
         partitionStore,
         uiComponent
     };

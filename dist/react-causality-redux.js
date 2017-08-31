@@ -368,6 +368,8 @@ function establishControllerConnections(_ref) {
     // Allows setting multiple keys in a state partition.
     var setState = partitionStore.setState;
 
+    var getState = partitionStore.getState;
+
     var funcKeys = [];
     var unsubscribers = [];
     _causalityRedux2.default.getKeys(partition.changerDefinitions).forEach(function (changerKey) {
@@ -378,13 +380,12 @@ function establishControllerConnections(_ref) {
         }
     });
 
-    if (typeof storeKeys === 'undefined') storeKeys = Object.keys(partition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
+    if (typeof storeKeys === 'undefined') storeKeys = _causalityRedux2.default.getKeys(partition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
 
     if (typeof changerKeys === 'undefined') changerKeys = funcKeys;else if (changerKeys.length === 0) changerKeys = undefined;
 
-    uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : uiComponentName + ' render';
-
     if (typeof uiComponent !== 'undefined') {
+        uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : uiComponentName + ' render';
         uiComponent = _causalityRedux2.default.connectChangersAndStateToProps(uiComponent, // React component to wrap.
         partition.partitionName, // State partition
         // This is an array of names of changers/action creators defined in the partition that you want
@@ -396,7 +397,7 @@ function establishControllerConnections(_ref) {
         storeKeys, uiComponentName);
     }
 
-    if (module.hot) {
+    if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) !== undefinedString && module.hot) {
         // Add the dispose handler that is to be called before this module is changed out for the new one. 
         // This must be done for any module with side effects like adding event listeners etc.
         module.hot.dispose(function () {
@@ -410,6 +411,7 @@ function establishControllerConnections(_ref) {
     return {
         partitionState: partitionState,
         setState: setState,
+        getState: getState,
         partitionStore: partitionStore,
         uiComponent: uiComponent
     };
