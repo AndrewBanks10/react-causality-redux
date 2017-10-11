@@ -355,12 +355,12 @@ function establishControllerConnections(_ref) {
     // If the store has already been created elsewhere, then only the input partition is created.
     _causalityRedux2.default.createStore(partition);
 
-    partition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
+    var foundPartition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
         return partition.partitionName === e.partitionName;
     });
 
     // Get access to the partition’s controller functions.
-    var partitionStore = _causalityRedux2.default.store[partition.partitionName];
+    var partitionStore = _causalityRedux2.default.store[foundPartition.partitionName];
 
     // Get a proxy to the store partition so that causality-redux can detect changes to the values of the partition.
     var partitionState = partitionStore.partitionState;
@@ -372,22 +372,22 @@ function establishControllerConnections(_ref) {
 
     var funcKeys = [];
     var unsubscribers = [];
-    _causalityRedux2.default.getKeys(partition.changerDefinitions).forEach(function (changerKey) {
-        var entry = partition.changerDefinitions[changerKey];
+    _causalityRedux2.default.getKeys(foundPartition.changerDefinitions).forEach(function (changerKey) {
+        var entry = foundPartition.changerDefinitions[changerKey];
         if (entry.operation === _causalityRedux2.default.operations.STATE_FUNCTION_CALL) {
-            unsubscribers.push(partitionStore.subscribe(entry.controllerFunction, changerKey));
+            if (typeof partition.controllerFunctions !== 'undefined' && typeof partition.controllerFunctions[changerKey] === 'function') unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));else unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));
             funcKeys.push(changerKey);
         }
     });
 
-    if (typeof storeKeys === 'undefined') storeKeys = _causalityRedux2.default.getKeys(partition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
+    if (typeof storeKeys === 'undefined') storeKeys = _causalityRedux2.default.getKeys(foundPartition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
 
     if (typeof changerKeys === 'undefined') changerKeys = funcKeys;else if (changerKeys.length === 0) changerKeys = undefined;
 
     if (typeof uiComponent !== 'undefined') {
         uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : uiComponentName + ' render';
         uiComponent = _causalityRedux2.default.connectChangersAndStateToProps(uiComponent, // React component to wrap.
-        partition.partitionName, // State partition
+        foundPartition.partitionName, // State partition
         // This is an array of names of changers/action creators defined in the partition that you want
         // passed into the props by causality-redux so that the component can call these functions.
         changerKeys,

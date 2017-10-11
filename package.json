@@ -1,6 +1,6 @@
 {
   "name": "react-causality-redux",
-  "version": "2.0.9",
+  "version": "2.0.11",
   "description": "Causality based extension of react-redux",
   "main": "lib/react-causality-redux.js",
   "scripts": {

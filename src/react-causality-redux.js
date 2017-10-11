@@ -242,19 +242,17 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);        
 }
 
-
-
 export function establishControllerConnections({ module, uiComponent, uiComponentName, partition, storeKeys, changerKeys, hotDisposeHandler }) {
     // Create the causality-redux store and use the store partition above for definitions. 
     // If the store has already been created elsewhere, then only the input partition is created.
     CausalityRedux.createStore(partition);
 
-    partition = CausalityRedux.partitionDefinitions.find(e =>
+    const foundPartition = CausalityRedux.partitionDefinitions.find(e =>
         partition.partitionName === e.partitionName
     );
 
     // Get access to the partition’s controller functions.
-    const partitionStore = CausalityRedux.store[partition.partitionName];
+    const partitionStore = CausalityRedux.store[foundPartition.partitionName];
 
     // Get a proxy to the store partition so that causality-redux can detect changes to the values of the partition.
     const partitionState = partitionStore.partitionState;
@@ -266,16 +264,19 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
 
     const funcKeys = [];
     const unsubscribers = [];
-    CausalityRedux.getKeys(partition.changerDefinitions).forEach(changerKey => {
-        const entry = partition.changerDefinitions[changerKey];
+    CausalityRedux.getKeys(foundPartition.changerDefinitions).forEach(changerKey => {
+        const entry = foundPartition.changerDefinitions[changerKey];
         if (entry.operation === CausalityRedux.operations.STATE_FUNCTION_CALL) {
-            unsubscribers.push(partitionStore.subscribe(entry.controllerFunction, changerKey));
+            if (typeof partition.controllerFunctions !== 'undefined' && typeof partition.controllerFunctions[changerKey] === 'function')
+                unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));
+            else
+                unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));    
             funcKeys.push(changerKey);
         }    
     });
 
     if (typeof storeKeys === 'undefined')
-        storeKeys = CausalityRedux.getKeys(partition.defaultState);
+        storeKeys = CausalityRedux.getKeys(foundPartition.defaultState);
     else if (storeKeys.length === 0)
         storeKeys = undefined;
 
@@ -288,7 +289,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
         uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
         uiComponent = CausalityRedux.connectChangersAndStateToProps(
             uiComponent, // React component to wrap.
-            partition.partitionName, // State partition
+            foundPartition.partitionName, // State partition
             // This is an array of names of changers/action creators defined in the partition that you want
             // passed into the props by causality-redux so that the component can call these functions.
             changerKeys,
@@ -318,6 +319,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
         uiComponent
     };
 }
+
 
 CausalityRedux.connectChangersAndStateToProps = connectChangersAndStateToProps;
 CausalityRedux.connectStateToProps = connectStateToProps;
