@@ -133,6 +133,9 @@ function handleStateConnections(arrArg) {
 //
 function WrapConnectComponent(Component, mapStateToProps, reactComponentName, combinedPartitionName, store) {
     return class WrappedComponent extends Component {
+        isCausalityReduxComponent() {
+            return true;
+        }
         render() {
             // This is only called when a tracing onListener function is active.
             // Will not be called in production mode.
@@ -242,84 +245,179 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);        
 }
 
-export function establishControllerConnections({ module, uiComponent, uiComponentName, partition, storeKeys, changerKeys, hotDisposeHandler }) {
-    // Create the causality-redux store and use the store partition above for definitions. 
-    // If the store has already been created elsewhere, then only the input partition is created.
-    CausalityRedux.createStore(partition);
-
-    const foundPartition = CausalityRedux.partitionDefinitions.find(e =>
-        partition.partitionName === e.partitionName
-    );
-
-    // Get access to the partition’s controller functions.
-    const partitionStore = CausalityRedux.store[foundPartition.partitionName];
-
-    // Get a proxy to the store partition so that causality-redux can detect changes to the values of the partition.
-    const partitionState = partitionStore.partitionState;
-
-    // Allows setting multiple keys in a state partition.
-    const setState = partitionStore.setState;
-
-    const getState = partitionStore.getState;
-
-    const funcKeys = [];
-    const unsubscribers = [];
-    CausalityRedux.getKeys(foundPartition.changerDefinitions).forEach(changerKey => {
-        const entry = foundPartition.changerDefinitions[changerKey];
-        if (entry.operation === CausalityRedux.operations.STATE_FUNCTION_CALL) {
-            if (typeof partition.controllerFunctions !== 'undefined' && typeof partition.controllerFunctions[changerKey] === 'function')
-                unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));
-            else
-                unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));    
-            funcKeys.push(changerKey);
-        }    
-    });
-
-    if (typeof storeKeys === 'undefined')
-        storeKeys = CausalityRedux.getKeys(foundPartition.defaultState);
-    else if (storeKeys.length === 0)
-        storeKeys = undefined;
-
-    if (typeof changerKeys === 'undefined')
-        changerKeys = funcKeys;
-    else if (changerKeys.length === 0)
-        changerKeys = undefined;
+/**
+ * Establishes controller connections between the controller functions/store partition data and
+ * react component(s) using redux connect.
+ * @param {Object.module} The variable module in the calling module. Used to support hot re-loading.
+ * @param {Object.uiComponent} A react component to be wrapped with redux connect.
+ * @param {String.uiComponentName} The string name of the component, such as Todo is simply 'Todo'
+ * @param {Object.partition} The causality redux partition definition.
+ * @param {Array.storeKeys} By default, uiComponent is wrapped with all controller function keys
+ * and all partition store keys sent into the props. Use this to select only a subset of those store keys.
+   @param {Array.changerKeys} By default, uiComponent is wrapped with all controller function keys
+ * and all partition store keys sent into the props. Use this to select only a subset of those function keys.
+ * @param {Function.hotDisposeHandler} A function to be called before the module is hot reloaded. Use
+ * this to remove module event listeners for example.
+ * @param {Array.controllerUIConnections} This parameter is used for two reasons. One, you want to
+ * connect a component to other partitions or two, you want to connect multiple conponents to Object.partition
+ * or other state partitions. Either way this parameter is an array of arrays.
+ * Array Parameter Format 1  - For connecting a component to one partition.
+ * [
+        component - The comnponent to be wrapped,
+        partition - The partition from which to conneced to.
+        controllerFunctionKeys - array of partition controller function keys to receive in the props of the component. 
+        defaultStateKeys - array of partition store keys to receive in the props of the component.
+        'component' - The strings name of the component.
+ * ]
+ *
+ * Array Parameter Format 2  - For connecting a component to multiple partitions.
+ * [
+        component - The component to be wrapped,
+        [
+            { partitionName1, arrayControllerFunctionKeys1, arrayDefaultStateKeys1 },
+            { partitionName2, arrayControllerFunctionKeys2, arrayDefaultStateKeys2 },
+        ],
+        'component' - The strings name of the component.
+ * ]
+ 
+ * @return {Object}
+ * {
+        partitionState = Proxy for getting and setting partition state values.
+        setState - Set multiple partition values at a time.
+        getState -Gets the current partition object
+        partitionStore - Accesses all features of this partition.
+        // 1) redux connected component if uiComponent is valid on input
+        // 2) Otherwise, if controllerUIConnections is defined then uiComponent is a object of
+        // the redux connected component(s).
+        uiComponent
+   }
+ */
+export function establishControllerConnections({ module, uiComponent, uiComponentName, partition, storeKeys, changerKeys, hotDisposeHandler, controllerUIConnections }) {
     
-    if (typeof uiComponent !== 'undefined') {
-        uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
-        uiComponent = CausalityRedux.connectChangersAndStateToProps(
-            uiComponent, // React component to wrap.
-            foundPartition.partitionName, // State partition
-            // This is an array of names of changers/action creators defined in the partition that you want
-            // passed into the props by causality-redux so that the component can call these functions.
-            changerKeys,
-            // This is an array of keys in COUNTTEN_STATE whose values you want passed into the props.
-            // Whenever any value associated with a key listed in this array changes in the causality-redux store,
-            // causality-redux will cause the component to render with the new values set in the props.
-            storeKeys,
-            uiComponentName            
+    if (typeof controllerUIConnections !== undefinedString) {
+        if (!Array.isArray(controllerUIConnections))
+            error('controllerUIConnections must be an array.'); 
+        
+        if (typeof uiComponent !== undefinedString && typeof partition === undefinedString) 
+            error('uiComponent is an invalid parameter.');    
+        
+        if (typeof partition !== undefinedString) {
+            controllerUIConnections.forEach(entry => {
+                partition.defaultState[entry[4]] = null;
+            });
+        }    
+    } 
+
+    let partitionState;
+    let setState;
+    let getState;
+    let partitionStore;
+    const unsubscribers = [];
+
+    if (typeof partition !== undefinedString) {
+        // Create the causality-redux store and use the store partition above for definitions.
+        // If the store has already been created elsewhere, then only the input partition is created.
+        CausalityRedux.createStore(partition);
+
+        const foundPartition = CausalityRedux.partitionDefinitions.find(e =>
+            partition.partitionName === e.partitionName
         );
-    }
+
+        // Get access to the partition’s controller functions.
+        partitionStore = CausalityRedux.store[foundPartition.partitionName];
+
+        // Get a proxy to the store partition so that causality-redux can detect changes to the values of the partition.
+        partitionState = partitionStore.partitionState;
+
+        // Allows setting multiple keys in a state partition.
+        setState = partitionStore.setState;
+
+        // Gets the current partition object.
+        getState = partitionStore.getState;
+
+        const funcKeys = [];
+        CausalityRedux.getKeys(foundPartition.changerDefinitions).forEach(changerKey => {
+            const entry = foundPartition.changerDefinitions[changerKey];
+            if (entry.operation === CausalityRedux.operations.STATE_FUNCTION_CALL) {
+                if (typeof partition.controllerFunctions !== 'undefined' && typeof partition.controllerFunctions[changerKey] === 'function')
+                    unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));
+                else
+                    unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));
+                funcKeys.push(changerKey);
+            }
+        });
+
+        if (typeof storeKeys === 'undefined')
+            storeKeys = CausalityRedux.getKeys(foundPartition.defaultState);
+        else if (storeKeys.length === 0)
+            storeKeys = undefined;
+
+        if (typeof changerKeys === 'undefined')
+            changerKeys = funcKeys;
+        else if (changerKeys.length === 0)
+            changerKeys = undefined;
+    
+        if (typeof uiComponent !== 'undefined') {
+            uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : `${uiComponentName} render`;
+            uiComponent = CausalityRedux.connectChangersAndStateToProps(
+                uiComponent, // React component to wrap.
+                foundPartition.partitionName, // State partition
+                // This is an array of names of changers/action creators defined in the partition that you want
+                // passed into the props by causality-redux so that the component can call these functions.
+                changerKeys,
+                // This is an array of keys in COUNTTEN_STATE whose values you want passed into the props.
+                // Whenever any value associated with a key listed in this array changes in the causality-redux store,
+                // causality-redux will cause the component to render with the new values set in the props.
+                storeKeys,
+                uiComponentName
+            );
+        }
+    }    
 
     if (typeof module !== undefinedString && module.hot) {
         // Add the dispose handler that is to be called before this module is changed out for the new one. 
         // This must be done for any module with side effects like adding event listeners etc.
         module.hot.dispose(function () {
-            unsubscribers.forEach(unsubscriber => unsubscriber());
+            if ( typeof unsubscribers !== undefinedString )
+                unsubscribers.forEach(unsubscriber => unsubscriber());
             if (typeof hotDisposeHandler === 'function')
                 hotDisposeHandler();
         });
     }
 
+    if (typeof controllerUIConnections !== undefinedString) {
+        const stateObj = {};
+        controllerUIConnections.forEach(entry => {
+            const wrappedComponent = CausalityRedux.connectChangersAndStateToProps(...entry);
+            if (typeof entry[4] === 'string')
+                stateObj[entry[4]] = wrappedComponent;
+            else
+                stateObj[entry[2]] = wrappedComponent;
+        });
+        // This is true if a partition definition is being used
+        // Set the enhanced components in the store.
+        if (typeof setState !== undefinedString)
+            setState(stateObj);
+        // Otherwise, return the redux connected component(s) in a object.
+        else 
+            uiComponent = stateObj;
+    }
+
     return {
+        // Proxy for getting and setting partition state values.
         partitionState,
+        // Set multiple partition values at a time.
         setState,
+        // Gets the current partition object.
         getState,
+        // Accesses all features of this partition.
         partitionStore,
-        uiComponent
+        // 1) redux connected component if uiComponent is valid on input
+        // 2) Otherwise, if controllerUIConnections is defined then uiComponent is a obhect of
+        // the redux connected component(s).
+        uiComponent     
     };
 }
-
 
 CausalityRedux.connectChangersAndStateToProps = connectChangersAndStateToProps;
 CausalityRedux.connectStateToProps = connectStateToProps;
