@@ -261,13 +261,15 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
  * @param {Array.controllerUIConnections} This parameter is used for two reasons. One, you want to
  * connect a component to other partitions or two, you want to connect multiple conponents to Object.partition
  * or other state partitions. Either way this parameter is an array of arrays.
+ * Note, if a partition is defined on input then each redux connected component will be contained in the partition store under its string componentname below. 
+ *
  * Array Parameter Format 1  - For connecting a component to one partition.
  * [
         component - The comnponent to be wrapped,
         partition - The partition from which to conneced to.
         controllerFunctionKeys - array of partition controller function keys to receive in the props of the component. 
         defaultStateKeys - array of partition store keys to receive in the props of the component.
-        'component' - The strings name of the component.
+        componentname - The string name of the component.
  * ]
  *
  * Array Parameter Format 2  - For connecting a component to multiple partitions.
@@ -277,7 +279,7 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
             { partitionName1, arrayControllerFunctionKeys1, arrayDefaultStateKeys1 },
             { partitionName2, arrayControllerFunctionKeys2, arrayDefaultStateKeys2 },
         ],
-        'component' - The strings name of the component.
+        componentname - The string name of the component.
  * ]
  
  * @return {Object}
@@ -286,20 +288,23 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
         setState - Set multiple partition values at a time.
         getState -Gets the current partition object
         partitionStore - Accesses all features of this partition.
-        // 1) redux connected component if uiComponent is valid on input
-        // 2) Otherwise, if controllerUIConnections is defined then uiComponent is a object of
-        // the redux connected component(s).
-        uiComponent
+        uiComponent 
+            1) The redux connected component if uiComponent is valid on input.
+            2) Otherwise, if controllerUIConnections.length === 1 then uiComponent is a object of
+               the redux connected component(s).
+            3) If controllerUIConnections.length > 1 then uiComponent is undefined and the connected components are stored
+               in the redux store with keys of their componentname.
+        
    }
  */
 export function establishControllerConnections({ module, uiComponent, uiComponentName, partition, storeKeys, changerKeys, hotDisposeHandler, controllerUIConnections }) {
     
+    if (typeof controllerUIConnections !== undefinedString && typeof uiComponent !== undefinedString)
+        error('Cannot define both controllerUIConnections and uiComponent.'); 
+    
     if (typeof controllerUIConnections !== undefinedString) {
         if (!Array.isArray(controllerUIConnections))
             error('controllerUIConnections must be an array.'); 
-        
-        if (typeof uiComponent !== undefinedString && typeof partition === undefinedString) 
-            error('uiComponent is an invalid parameter.');    
         
         if (typeof partition !== undefinedString) {
             controllerUIConnections.forEach(entry => {
@@ -394,9 +399,8 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
             else
                 stateObj[entry[2]] = wrappedComponent;
         });
-        // This is true if a partition definition is being used
-        // Set the enhanced components in the store.
-        if (typeof setState !== undefinedString)
+        // More than one component definition. Set in the store.
+        if (controllerUIConnections.length > 1)
             setState(stateObj);
         // Otherwise, return the redux connected component(s) in a object.
         else 
