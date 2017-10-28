@@ -245,6 +245,9 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);        
 }
 
+export const isCausalityReduxComponent = val =>
+    typeof val === 'function' && val.prototype !== 'undefined' && typeof val.prototype.isCausalityReduxComponent !== 'undefined';  
+
 /**
  * Establishes controller connections between the controller functions/store partition data and
  * react component(s) using redux connect.
@@ -427,3 +430,4 @@ CausalityRedux.connectChangersAndStateToProps = connectChangersAndStateToProps;
 CausalityRedux.connectStateToProps = connectStateToProps;
 CausalityRedux.connectChangersToProps = connectChangersToProps;
 CausalityRedux.establishControllerConnections = establishControllerConnections;
+CausalityRedux.isCausalityReduxComponent = isCausalityReduxComponent;

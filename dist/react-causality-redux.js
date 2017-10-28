@@ -88,6 +88,7 @@ module.exports = ReactRedux;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.isCausalityReduxComponent = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -347,6 +348,10 @@ function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, arg6) {
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);
 }
 
+var isCausalityReduxComponent = exports.isCausalityReduxComponent = function isCausalityReduxComponent(val) {
+    return typeof val === 'function' && val.prototype !== 'undefined' && typeof val.prototype.isCausalityReduxComponent !== 'undefined';
+};
+
 /**
  * Establishes controller connections between the controller functions/store partition data and
  * react component(s) using redux connect.
@@ -519,6 +524,7 @@ _causalityRedux2.default.connectChangersAndStateToProps = connectChangersAndStat
 _causalityRedux2.default.connectStateToProps = connectStateToProps;
 _causalityRedux2.default.connectChangersToProps = connectChangersToProps;
 _causalityRedux2.default.establishControllerConnections = establishControllerConnections;
+_causalityRedux2.default.isCausalityReduxComponent = isCausalityReduxComponent;
 
 /***/ })
 /******/ ]);
