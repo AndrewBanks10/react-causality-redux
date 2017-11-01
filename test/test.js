@@ -1,26 +1,13 @@
-const jsdom = require('jsdom')
-const html = `<!DOCTYPE html><body><div id="reactroot"></div></body></html>`;
+const { JSDOM } = require('jsdom');
 
-let doc;
-let window;
-if ( typeof jsdom.JSDOM !== 'undefined') {
-    doc = new jsdom.JSDOM(html);
-    window = doc.window;
-} else {
-    doc = new jsdom.jsdom(html);
-    window = doc.defaultView;
-}
-
-global.document = window.document;
+const jsdom = new JSDOM('<!doctype html><html><body></body></html>', {
+    url: 'http://localhost',
+});
+const { window } = jsdom;
 global.window = window;
-global.navigator = window.navigator;  
+global.document = window.document;
+global.navigator = {
+    userAgent: 'node.js'
+}; 
 
-function simulateEvent(element, etype, param){
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    element.dispatchEvent(evObj);
-}
 
-global['simulateEvent'] = simulateEvent;
-
-require('./react-test-es5.js');

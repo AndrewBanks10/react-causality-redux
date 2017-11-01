@@ -395,13 +395,7 @@ var isCausalityReduxComponent = exports.isCausalityReduxComponent = function isC
         setState - Set multiple partition values at a time.
         getState -Gets the current partition object
         partitionStore - Accesses all features of this partition.
-        uiComponent 
-            1) The redux connected component if uiComponent is valid on input.
-            2) Otherwise, if controllerUIConnections.length === 1 then uiComponent is a object of
-               the redux connected component(s).
-            3) If controllerUIConnections.length > 1 then uiComponent is undefined and the connected components are stored
-               in the redux store with keys of their componentname.
-        
+        wrappedComponents -- Redux connect wrapped component(s).  
    }
  */
 function establishControllerConnections(_ref) {
@@ -432,6 +426,7 @@ function establishControllerConnections(_ref) {
     var getState = void 0;
     var partitionStore = void 0;
     var unsubscribers = [];
+    var wrappedComponents = {};
 
     if ((typeof partition === 'undefined' ? 'undefined' : _typeof(partition)) !== undefinedString) {
         // Create the causality-redux store and use the store partition above for definitions.
@@ -458,18 +453,18 @@ function establishControllerConnections(_ref) {
         _causalityRedux2.default.getKeys(foundPartition.changerDefinitions).forEach(function (changerKey) {
             var entry = foundPartition.changerDefinitions[changerKey];
             if (entry.operation === _causalityRedux2.default.operations.STATE_FUNCTION_CALL) {
-                if (typeof partition.controllerFunctions !== 'undefined' && typeof partition.controllerFunctions[changerKey] === 'function') unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));else unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));
+                if (_typeof(partition.controllerFunctions) !== undefinedString && typeof partition.controllerFunctions[changerKey] === 'function') unsubscribers.push(partitionStore.subscribe(partition.controllerFunctions[changerKey], changerKey));else unsubscribers.push(partitionStore.subscribe(partition.changerDefinitions[changerKey].controllerFunction, changerKey));
                 funcKeys.push(changerKey);
             }
         });
 
-        if (typeof storeKeys === 'undefined') storeKeys = _causalityRedux2.default.getKeys(foundPartition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
+        if ((typeof storeKeys === 'undefined' ? 'undefined' : _typeof(storeKeys)) === undefinedString) storeKeys = _causalityRedux2.default.getKeys(foundPartition.defaultState);else if (storeKeys.length === 0) storeKeys = undefined;
 
-        if (typeof changerKeys === 'undefined') changerKeys = funcKeys;else if (changerKeys.length === 0) changerKeys = undefined;
+        if ((typeof changerKeys === 'undefined' ? 'undefined' : _typeof(changerKeys)) === undefinedString) changerKeys = funcKeys;else if (changerKeys.length === 0) changerKeys = undefined;
 
-        if (typeof uiComponent !== 'undefined') {
-            uiComponentName = typeof uiComponentName === 'undefined' ? 'React component render' : uiComponentName + ' render';
-            uiComponent = _causalityRedux2.default.connectChangersAndStateToProps(uiComponent, // React component to wrap.
+        if ((typeof uiComponent === 'undefined' ? 'undefined' : _typeof(uiComponent)) !== undefinedString) {
+            if ((typeof uiComponentName === 'undefined' ? 'undefined' : _typeof(uiComponentName)) === undefinedString) error('The component should have uiComponentName as the string name of the component.');
+            wrappedComponents[uiComponentName] = _causalityRedux2.default.connectChangersAndStateToProps(uiComponent, // React component to wrap.
             foundPartition.partitionName, // State partition
             // This is an array of names of changers/action creators defined in the partition that you want
             // passed into the props by causality-redux so that the component can call these functions.
@@ -478,6 +473,7 @@ function establishControllerConnections(_ref) {
             // Whenever any value associated with a key listed in this array changes in the causality-redux store,
             // causality-redux will cause the component to render with the new values set in the props.
             storeKeys, uiComponentName);
+            uiComponent = wrappedComponents[uiComponentName];
         }
     }
 
@@ -493,15 +489,13 @@ function establishControllerConnections(_ref) {
     }
 
     if ((typeof controllerUIConnections === 'undefined' ? 'undefined' : _typeof(controllerUIConnections)) !== undefinedString) {
-        var stateObj = {};
         controllerUIConnections.forEach(function (entry) {
             var wrappedComponent = _causalityRedux2.default.connectChangersAndStateToProps.apply(_causalityRedux2.default, _toConsumableArray(entry));
-            if (typeof entry[4] === 'string') stateObj[entry[4]] = wrappedComponent;else stateObj[entry[2]] = wrappedComponent;
+            if (typeof entry[4] === 'string') wrappedComponents[entry[4]] = wrappedComponent;else wrappedComponents[entry[2]] = wrappedComponent;
         });
-        // More than one component definition. Set in the store.
-        if (controllerUIConnections.length > 1) setState(stateObj);
-        // Otherwise, return the redux connected component(s) in a object.
-        else uiComponent = stateObj;
+        // If partition is defined then the wrapped components are set in the store under their names. 
+        if ((typeof setState === 'undefined' ? 'undefined' : _typeof(setState)) !== undefinedString) setState(wrappedComponents);
+        uiComponent = wrappedComponents;
     }
 
     return {
@@ -513,9 +507,9 @@ function establishControllerConnections(_ref) {
         getState: getState,
         // Accesses all features of this partition.
         partitionStore: partitionStore,
-        // 1) redux connected component if uiComponent is valid on input
-        // 2) Otherwise, if controllerUIConnections is defined then uiComponent is a obhect of
-        // the redux connected component(s).
+        // Redux connect wrapped component(s).
+        wrappedComponents: wrappedComponents,
+        // From the past
         uiComponent: uiComponent
     };
 }
