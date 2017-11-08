@@ -198,8 +198,12 @@ export function connectChangersAndStateToProps(reactComponent, arg2, arg3, arg4,
         arrArg = [];
         if ( typeof arg3 === undefinedString )
             arg3 = [];
+        else if ( arg3.length === 0 )
+            arg3 = undefined;
         if ( typeof arg4 === undefinedString )
             arg4 = [];
+        else if ( arg4.length === 0 )
+            arg4 = undefined;
         arrArg.push({partitionName: arg2, changers: arg3, stateEntries: arg4});
     } else {
         mergeProps = arg4;
@@ -218,6 +222,8 @@ export function connectStateToProps(reactComponent, arg2, arg3, arg4, arg5, arg6
         arrArg = [];
         if ( typeof arg3 === undefinedString )
             arg3 = [];
+        else if (arg3.length === 0)
+            arg3 = undefined;
         arrArg.push({partitionName: arg2, changers: undefined, stateEntries: arg3});
     } else {
         mergeProps = arg4;
@@ -234,8 +240,10 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     let reactComponentName = arg4;
     if ( !Array.isArray(arg2) ) {
         arrArg = [];
-        if ( typeof arg3 === undefinedString )
+        if (typeof arg3 === undefinedString)
             arg3 = [];
+        else if (arg3.length === 0)
+            arg3 = undefined;
         arrArg.push({partitionName: arg2, changers: arg3, stateEntries: undefined});
     } else {
         mergeProps = arg4;
@@ -244,6 +252,7 @@ export function connectChangersToProps(reactComponent, arg2, arg3, arg4, arg5, a
     }
     return connectChangersAndStateToPropsInternal(reactComponent, arrArg, reactComponentName, mergeProps, options);        
 }
+
 
 export const isCausalityReduxComponent = val =>
     typeof val === 'function' && val.prototype !== 'undefined' && typeof val.prototype.isCausalityReduxComponent !== 'undefined';  
