@@ -323,6 +323,7 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
     let setState;
     let getState;
     let partitionStore;
+    let subscribe;
     const unsubscribers = [];
     const wrappedComponents = {};
 
@@ -346,6 +347,9 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
 
         // Gets the current partition object.
         getState = partitionStore.getState;
+
+        // Gets the current partition object.
+        subscribe = partitionStore.subscribe;
 
         const funcKeys = [];
         CausalityRedux.getKeys(foundPartition.changerDefinitions).forEach(changerKey => {
@@ -422,6 +426,8 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
         getState,
         // Accesses all features of this partition.
         partitionStore,
+        // Listen for changes to any variable in this partition
+        subscribe,
         // Redux connect wrapped component(s).
         wrappedComponents,
         // From the past
