@@ -316,7 +316,17 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
             controllerUIConnections.forEach(entry => {
                 partition.defaultState[entry[4]] = null;
             });
-        }    
+        }
+        controllerUIConnections.forEach(entry => {
+            if (Array.isArray(entry[1])) {
+                entry[1].forEach(e => {
+                    if (typeof e.changerKeys != undefinedString)
+                        e.changers = e.changerKeys;
+                    if (typeof e.storeKeys != undefinedString)
+                        e.stateEntries = e.storeKeys;
+                })
+            }
+        });
     } 
 
     let partitionState;

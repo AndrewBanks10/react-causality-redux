@@ -419,6 +419,14 @@ function establishControllerConnections(_ref) {
                 partition.defaultState[entry[4]] = null;
             });
         }
+        controllerUIConnections.forEach(function (entry) {
+            if (Array.isArray(entry[1])) {
+                entry[1].forEach(function (e) {
+                    if (_typeof(e.changerKeys) != undefinedString) e.changers = e.changerKeys;
+                    if (_typeof(e.storeKeys) != undefinedString) e.stateEntries = e.storeKeys;
+                });
+            }
+        });
     }
 
     var partitionState = void 0;
