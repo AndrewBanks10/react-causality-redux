@@ -1,6 +1,6 @@
 {
   "name": "react-causality-redux",
-  "version": "2.0.19",
+  "version": "2.0.20",
   "description": "Causality based extension of react-redux",
   "main": "lib/react-causality-redux.js",
   "scripts": {
@@ -41,7 +41,7 @@
   "dependencies": {
     "redux": "^3.7.1",
     "react-redux": "^5.0.5",
-    "causality-redux": "^2.1.15"
+    "causality-redux": "^2.1.23"
   },
   "repository": {
     "type": "git",

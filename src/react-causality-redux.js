@@ -327,7 +327,10 @@ export function establishControllerConnections({ module, uiComponent, uiComponen
                 })
             }
         });
-    } 
+    }
+
+    if (typeof partition !== undefinedString && typeof partition.uiServiceFunctions !== undefinedString)
+        partition.controllerFunctions =  partition.uiServiceFunctions   
 
     let partitionState;
     let setState;
