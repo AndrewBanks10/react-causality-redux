@@ -42,8 +42,8 @@ Array Parameter Format 2  - For connecting multiple partitions to a component in
     ],
     uiComponentName{String} - The string name of the component.
 }
-As above, for the partitions array argument, if the changerKeys is undefined then all uiServiceFunction keys for the partition are included in the props and if changerKeys=[] then no uiServiceFunction keys for the partition are included in the props. Likewise, if the storeKeys is undefined then all defaultState keys for the partition are included in the props and if storeKeys=[] then no defaultState keys for the partition are included in the props.
 ```
+As above, for the partitions array argument, if the changerKeys is undefined then all uiServiceFunction keys for the partition are included in the props and if changerKeys=[] then no uiServiceFunction keys for the partition are included in the props. Likewise, if the storeKeys is undefined then all defaultState keys for the partition are included in the props and if storeKeys=[] then no defaultState keys for the partition are included in the props.
 **Return Value**
 ```javascript
 { partitionState, setState, getState, subscribe, partitionStore, uiComponent }
