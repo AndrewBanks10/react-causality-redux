@@ -1,103 +1,64 @@
-### How can you hot reload your business code for easy debugging and also keep it completely separate from the UI code so that future UI platform changes are easy to adjust to? Use causality-redux.
+### Installation
+`npm install --save react-causality-redux`
 
-Causality-redux is an extension to redux that significantly reduces redux and react-redux coding and debugging.
-
-To show how easy causality-redux is to use, consider the example below.
-
+### Basics
+                
+**establishControllerConnections** - Connects store partition keys and functions to a react component in the props. Whenever any of the store partition values change, the react component re-renders with the new values put into the props by causality-redux.
+**Syntax**
+```javascript
+establishControllerConnections(obj)
 ```
-import React from 'react';
-import CausalityRedux from 'causality-redux';
+**Parameters**
+* obj.module{Object}[Optional] - The variable module in the calling module. Used to support hot re-loading..
+* obj.partition{Object}[Optional] - The causality redux partition definition.
+* obj.uiComponent{Object}[Optional] - A react component to be wrapped with redux connect.
+* obj.uiComponentName{String}[Optional but required if obj.uiComponent is specified] - The string name of the component, such as Todo is simply 'Todo'.
+* obj.storeKeys{Array}[Optional] - The default behavior connects all keys in the defaultState of the partition to the react uiComponent. Override this behavior by supplying a subset of defaultState keys in an array with this key.
+* obj.changerKeys{Array }[Optional] - The default behavior connects all keys in the controllerFunctions of the partition to the react uiComponent. Override this behavior by supplying a subset of the uiServiceFunctions keys in an array with this key.
+* obj.hotDisposeHandler{Function}[Optional] - A function that is to be called just before the module is hot reloaded. Generally use this to remove event listeners or other side effects of loading the module.
+* obj.controllerUIConnections{Array}[Optional] - This parameter is used for two reasons. One, you want to connect a component in the view to other component partitions or two, you want to connect multiple conponents in the view to obj.partition or other component partitions. Either way this parameter is an array of objects.
+Note, if a partition is defined on input then each redux connected component will be contained in the partition store under its string componentname below.
+The format of each array entry in controllerUIConnections array is given below.
 
-// First define the store partition as below.
-const COUNTER_STATE = 'COUNTER_STATE';
-const reduxCounter = {
-    partitionName: COUNTER_STATE,
-    defaultState: { counter: 0 } // This is the state object for the COUNTER_STATE partition.
+Array Parameter Format 1  - For connecting to one partition to one a component in the view.
+```javascript
+{
+    uiComponent{Object} - The component to be wrapped.
+    partitionName{string} - The partition from which to connect to.
+    changerKeys{Array} - array of partition uiServiceFunction function keys to receive in the props of the component. If this entry is undefined then all uiServiceFunction keys are included in the props. If this entry is an empty array then no uiServiceFunction keys are included in the props.
+    storeKeys{Array} - array of partition store keys to receive in the props of the component. If this entry is undefined then all defaultState keys are included in the props. If this entry is an empty array then no defaultState keys are included in the props.
+    uiComponentName{String} - The string name of the component.
 }
-CausalityRedux.createStore([reduxCounter]); // Create the causality-redux store and use the store partition above for definitions.
-const counterState = CausalityRedux.store[COUNTER_STATE].partitionState;
-
-// To connect this to a react component, here is an example.
-const CounterForm = ({counter}) => 
-    <div>
-        <div>{`The current counter is ${counter}.`}</div>
-        <button onClick={() => counterState.counter++}>Up</button> // Causes a detectable state change to counter in the redux store.
-        <button onClick={() => counterState.counter--}>Down</button> // Causes a detectable state change to counter in the redux store.
-    </div>
-// Now wrap the component CounterForm
-const CounterFormCausalityRedux = CausalityRedux.connectStateToProps(
-    CounterForm, // React component to wrap.
-    COUNTER_STATE, // State partition
-    ['counter'] // This is an array of values in COUNTER_STATE that you want passed into the props. Whenever counter 
-                // changes in the redux store, this component will render with the new value of counter set in the props.
-);
-
-const App = () =>
-    <Provider store={ CausalityRedux.store}>
-        <CounterFormCausalityRedux/>
-    </Provider>
 ```
 
-That is all there is to it.
-Note that there are no changers, reducers, dispatching, redux connects or mapStateToProps/mapDispatchToProps definitions.
-The buttons are clicked, the counter value is changed in the redux store then CounterForm is rendered with the new value of counter that is set in the props. So, the new value is shown to the user.
+Array Parameter Format 2  - For connecting multiple partitions to a component in the view. In short, you can connect state and/or functions from other components.
+```javascript
 
-
-## Benefits of causality-redux
-- You can define multiple partitions within the redux store. This way, one partition can be associated exclusively with a causality chain of a UI component and its business logic. This also allows you to have shared partitions that can be used to change the state of such things as a UI busy loader than can be shared by different causality chains.
-- By assigning a partition to a specific UI component and its business logic, you can track changes just on that state partition for easier debugging of a new component and its business logic.
-- To implement causality, causality-redux exposes two main concepts, changers which initiate a cause and subscribers that subscribe as an effect to the cause. The programming steps taken by the subscriber as a result of the cause is the effect.
-- Specific keys within a partition can be targeted by a subscriber of state changes. So, the subscriber is not called unless one of the targets is changed.
-- The subscriber is called with the targeted keys/values that changed as an argument so that it does not need to call getState to figure out if the state changes apply to the subscriber.
-- In most cases changers/dispatchers do not need to be defined or coded. They are automatically generated by causality-redux.
-- In most cases reducers do not need to be defined or coded. They are automatically generated by causality-redux.           
-- Type checking of arguments is performed for most changers in order to catch coding errors early.
-- Connecting changers and partition values to react components takes only one line of code. mapStateToProps and mapDispatchToProps definitions are no longer needed.
-- React PropType definitions are not needed unless they represent component configurations because causality-redux does all of the type checking of arguments and automatically validates functions that are set to props in react components.
-- Business logic functions do not need to be passed down the react UI tree as props. A react component simply binds to a changer string name that causes a state change in which business logic subscribes to the change and implements the causality chain. So a react component can be a fully functional business logic/UI unit without any dependencies on the containing react UI tree.
-- UI components do not need to import business logic functions or reference them since the components bind to changer string names instead of business functions. So, neither the business logic nor the UI components need to import anything about the other.
-- Allows hot re-loading of business code for easier debugging.
-- Provides middleware between business code and UI such as react or another other UI implementation. UI implementations come and go and with causality-redux you do not have to tear out your business code from the UI. There is a clean separation between the two with no importing needed from each other. So, if the UI implementation changes in the future, you only need to worry about the UI.
-- Causality-redux supports three types of plugins:
-  - Complete self contained react web component plugins that can be simply inserted into the UI. 
-  - Business logic plugins that are easily connected to UI components with one line of code.
-  - Reducer plugins to supplement built-in causality-redux reducers.
-- Causality-redux is very small only 6K gzipped.
-
-If you are using react, see [Github react-causality-redux](https://github.com/AndrewBanks10/react-causality-redux) for the react extension to causality-redux.
-
-## Documentation
-
-You can find documentation at <https://cazec.com/causalityredux/causalityredux.html>
-
-## Demos with source code.
-- [General Demo](https://cazec.com/causalityredux/causalityreduxdemo.html) - Demonstates general features of react-causality-redux.
-- [Todo Demo](https://cazec.com/causalityredux/todo.htm) - React demo that provides the same functionality as 100 redux lines of code in just 8 lines. 
-- [Counter Demo](https://cazec.com/causalityredux/countertest.html) - Show a counter example and also how to access external business logic without any import of the business functions or injecting react props from the top down.
-
-## NPM links
-
-[npm causality-redux](https://www.npmjs.com/package/causality-redux)
-
-[npm causality-redux react extension](https://www.npmjs.com/package/react-causality-redux)
-
-## Github links
-
-[Github causality-redux](https://github.com/AndrewBanks10/causality-redux)
-
-[Github causality-redux react extension](https://github.com/AndrewBanks10/react-causality-redux)
-
-### VS Code template for developing with es6, jsx react and causality-redux.
-The template supports the following features.
-* Vscode debugging and hot re-loading on a file save within react code or the business code. 
-* Css modules.
-* Sass, scss and less. 
-* Postcss-loader so you do not have to use vendor prefixes in your css code.
-* Mocha react testing.
-* Mocha vscode debugging. 
-* Dll libraries for debugging and/or for production.
-* Minimized production build for both css and js.
-* Url-loader for assets such as images, fonts etc that can be imported into your react components.
-
-[Github causality-redux react vscode hot loading and debug template](https://github.com/AndrewBanks10/react-causality-redux-vscode-template)
-
+{
+    uiComponent{Object} - The component to be wrapped
+    partitions: - The partitions you want to connect to.
+    [
+        { partitionName{String}, changerKeys{Array}, storeKeys{Array} }
+    ],
+    uiComponentName{String} - The string name of the component.
+}
+As above, for the partitions array argument, if the changerKeys is undefined then all uiServiceFunction keys for the partition are included in the props and if changerKeys=[] then no uiServiceFunction keys for the partition are included in the props. Likewise, if the storeKeys is undefined then all defaultState keys for the partition are included in the props and if storeKeys=[] then no defaultState keys for the partition are included in the props.
+```
+**Return Value**
+```javascript
+{ partitionState, setState, getState, subscribe, partitionStore, uiComponent }
+```
+* partitionState - A proxy to the store partition keys so that you can get and set individual partition keys. The statement partitionState.key returns a shallow copy of key and partitionState.key = value sets key to value in the redux partition according o===to the rules of redux updating.
+* setState(obj) - Merges obj with the redux partition object.
+* getState - Gets the entire partition object.
+* subscribe(listener{function}, keys{array}) - The listener is called if and only if any of the keys in the array argument are changed in the redux partition. The listener will receives an object that contains the key/value pairs of those that changed.
+* partitionStore - Returns the partition's store object. This object contains the below.
+    1. partitionState
+    2. setState
+    3. getState
+    4. subscribe
+    5. uiServiceFunctions at their respective key from the uiServiceFunctions object.
+* uiComponent
+    1. The redux connected component if uiComponent is valid on input.
+    2. If controllerUIConnections.length === 1 then uiComponent is an object of the redux connected component(s).
+    3. If controllerUIConnections.length > 1 then uiComponent is undefined and the redux connected components are stored in the redux partition with keys of their componentname.
