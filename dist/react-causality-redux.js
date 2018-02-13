@@ -120,6 +120,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var undefinedString = 'undefined';
+var historyAddPartition = null;
 
 var error = function error(msg) {
   throw new Error('react-causality-redux: ' + msg);
@@ -167,9 +168,11 @@ function mapDispatchToProps(listenerDefs) {
     var obj = {};
     listenerDefs.forEach(function (p) {
       var storePartition = _causalityRedux2.default.store[p.partitionName];
-      p.changerKeys.forEach(function (key) {
-        obj[key] = storePartition[key];
-      });
+      if ((typeof storePartition === 'undefined' ? 'undefined' : _typeof(storePartition)) !== undefinedString) {
+        p.changerKeys.forEach(function (key) {
+          obj[key] = storePartition[key];
+        });
+      }
     });
     return obj;
   };
@@ -217,9 +220,11 @@ function mapStateToProps(stateDefs) {
     var obj = {};
     stateDefs.forEach(function (stateDef) {
       var statePartition = state[stateDef.partitionName];
-      stateDef.storeKeys.forEach(function (e) {
-        obj[e] = statePartition[e];
-      });
+      if ((typeof statePartition === 'undefined' ? 'undefined' : _typeof(statePartition)) !== undefinedString) {
+        stateDef.storeKeys.forEach(function (e) {
+          obj[e] = statePartition[e];
+        });
+      }
     });
     return obj;
   };
@@ -524,6 +529,10 @@ function establishControllerConnections(_ref) {
     var foundPartition = _causalityRedux2.default.partitionDefinitions.find(function (e) {
       return copyPartition.partitionName === e.partitionName;
     });
+
+    if (historyAddPartition) {
+      historyAddPartition(foundPartition.partitionName);
+    }
 
     // Get access to the partition’s controller functions.
     partitionStore = _causalityRedux2.default.store[foundPartition.partitionName];

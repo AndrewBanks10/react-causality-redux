@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import CausalityRedux from 'causality-redux'
 
 const undefinedString = 'undefined'
+let historyAddPartition = null
 
 const error = (msg) => { throw new Error(`react-causality-redux: ${msg}`) }
 
@@ -47,9 +48,11 @@ function mapDispatchToProps (listenerDefs) {
     const obj = {}
     listenerDefs.forEach(p => {
       const storePartition = CausalityRedux.store[p.partitionName]
-      p.changerKeys.forEach(key => {
-        obj[key] = storePartition[key]
-      })
+      if (typeof storePartition !== undefinedString) {
+        p.changerKeys.forEach(key => {
+          obj[key] = storePartition[key]
+        })
+      }
     })
     return obj
   }
@@ -97,9 +100,11 @@ function mapStateToProps (stateDefs) {
     const obj = {}
     stateDefs.forEach(stateDef => {
       const statePartition = state[stateDef.partitionName]
-      stateDef.storeKeys.forEach(e => {
-        obj[e] = statePartition[e]
-      })
+      if (typeof statePartition !== undefinedString) {
+        stateDef.storeKeys.forEach(e => {
+          obj[e] = statePartition[e]
+        })
+      }
     })
     return obj
   }
@@ -393,6 +398,10 @@ export function establishControllerConnections ({ module, uiComponent, uiCompone
     const foundPartition = CausalityRedux.partitionDefinitions.find(e =>
       copyPartition.partitionName === e.partitionName
     )
+
+    if (historyAddPartition) {
+      historyAddPartition(foundPartition.partitionName)
+    }
 
     // Get access to the partition’s controller functions.
     partitionStore = CausalityRedux.store[foundPartition.partitionName];
